@@ -101,7 +101,10 @@ class SiteConfigurationAdmin(admin.ModelAdmin):
     list_display = ['site_name']
     
     def has_add_permission(self, request):
-        return not SiteConfiguration.objects.exists()
+        try:
+            return not SiteConfiguration.objects.exists()
+        except Exception:
+            return False
 
     def has_delete_permission(self, request, obj=None):
         return False # Prevent deletion of site config

@@ -58,14 +58,17 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
 class SiteConfigurationView(APIView):
     """Returns the global site configuration (logo, site name, etc.)."""
     def get(self, request):
-        config = SiteConfiguration.objects.first()
-        if not config:
-            # Provide default if none exists yet
+        try:
+            config = SiteConfiguration.objects.first()
+            if not config:
+                raise SiteConfiguration.DoesNotExist
+            serializer = SiteConfigurationSerializer(config, context={'request': request})
+            return Response(serializer.data)
+        except (SiteConfiguration.DoesNotExist, Exception):
+            # Provide default if none exists yet or table doesn't exist
             return Response({
                 'site_name': 'SJP Chapter Hub',
                 'logo': None,
                 'favicon': None,
                 'footer_text': ''
             })
-        serializer = SiteConfigurationSerializer(config, context={'request': request})
-        return Response(serializer.data)
