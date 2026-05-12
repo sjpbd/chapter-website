@@ -1,6 +1,6 @@
 <script setup>
 import { X, Download, Maximize2 } from 'lucide-vue-next'
-import { onMounted, onUnmounted, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   doc: { type: Object, required: true },
@@ -13,14 +13,35 @@ const close = () => {
   emit('close')
 }
 
-// Ensure the file URL points to the current host if it mistakenly contains localhost:8000
-const fileUrl = computed(() => {
+// Determine if the device is mobile
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+// Ensure the file URL is absolute for external viewers (like Google Docs Viewer)
+const absoluteUrl = computed(() => {
   if (!props.doc?.file) return ''
-  // If URL contains localhost:8000, replace it with current origin or make relative
-  if (props.doc.file.includes('localhost:8000')) {
-    return props.doc.file.replace(/^https?:\/\/localhost:8000/, '')
+  let url = props.doc.file
+  if (url.includes('localhost:8000')) {
+    url = url.replace(/^https?:\/\/localhost:8000/, '')
   }
-  return props.doc.file
+  if (url.startsWith('http')) return url
+  return window.location.origin + url
+})
+
+const isPdf = computed(() => {
+  return props.doc?.file?.toLowerCase().endsWith('.pdf')
+})
+
+// For mobile and non-PDF files, Google Docs Viewer provides a much better "direct" experience
+const viewerUrl = computed(() => {
+  if (!absoluteUrl.value) return ''
+  
+  // If it's a PDF on desktop, use native browser viewer (better performance/features)
+  if (isPdf.value && !isMobile) {
+    return absoluteUrl.value + '#toolbar=1&navpanes=0&scrollbar=1'
+  }
+  
+  // Otherwise, use Google Docs Viewer for a consistent "inline" experience
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl.value)}&embedded=true`
 })
 
 // Prevent background scrolling when modal is open
@@ -44,10 +65,10 @@ onUnmounted(() => {
               <span class="file-tag">{{ doc.category_name }}</span>
             </div>
             <div class="modal-actions">
-              <a :href="fileUrl" target="_blank" title="Open in new tab" class="icon-btn">
+              <a :href="absoluteUrl" target="_blank" title="Open in new tab" class="icon-btn">
                 <Maximize2 :size="18" />
               </a>
-              <a :href="fileUrl" download title="Download" class="icon-btn">
+              <a :href="absoluteUrl" download title="Download" class="icon-btn">
                 <Download :size="18" />
               </a>
               <button @click="close" class="icon-btn close-btn" title="Close">
@@ -58,7 +79,7 @@ onUnmounted(() => {
           
           <div class="modal-body">
             <!-- Native browser PDF rendering using object/iframe -->
-            <iframe :src="fileUrl + '#toolbar=1&navpanes=0&scrollbar=1'" class="pdf-frame" frameborder="0"></iframe>
+            <iframe :src="viewerUrl" class="pdf-frame" frameborder="0"></iframe>
           </div>
         </div>
       </div>
