@@ -13,6 +13,16 @@ const close = () => {
   emit('close')
 }
 
+// Ensure the file URL points to the current host if it mistakenly contains localhost:8000
+const fileUrl = computed(() => {
+  if (!props.doc?.file) return ''
+  // If URL contains localhost:8000, replace it with current origin or make relative
+  if (props.doc.file.includes('localhost:8000')) {
+    return props.doc.file.replace(/^https?:\/\/localhost:8000/, '')
+  }
+  return props.doc.file
+})
+
 // Prevent background scrolling when modal is open
 onMounted(() => {
   document.body.style.overflow = 'hidden'
@@ -34,10 +44,10 @@ onUnmounted(() => {
               <span class="file-tag">{{ doc.category_name }}</span>
             </div>
             <div class="modal-actions">
-              <a :href="doc.file" target="_blank" title="Open in new tab" class="icon-btn">
+              <a :href="fileUrl" target="_blank" title="Open in new tab" class="icon-btn">
                 <Maximize2 :size="18" />
               </a>
-              <a :href="doc.file" download title="Download" class="icon-btn">
+              <a :href="fileUrl" download title="Download" class="icon-btn">
                 <Download :size="18" />
               </a>
               <button @click="close" class="icon-btn close-btn" title="Close">
@@ -48,7 +58,7 @@ onUnmounted(() => {
           
           <div class="modal-body">
             <!-- Native browser PDF rendering using object/iframe -->
-            <iframe :src="doc.file + '#toolbar=1&navpanes=0&scrollbar=1'" class="pdf-frame" frameborder="0"></iframe>
+            <iframe :src="fileUrl + '#toolbar=1&navpanes=0&scrollbar=1'" class="pdf-frame" frameborder="0"></iframe>
           </div>
         </div>
       </div>
