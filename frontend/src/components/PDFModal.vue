@@ -1,6 +1,6 @@
 <script setup>
 import { X, Download, Maximize2 } from 'lucide-vue-next'
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 
 const props = defineProps({
   doc: { type: Object, required: true },
