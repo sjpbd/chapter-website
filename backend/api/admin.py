@@ -2,11 +2,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, ScheduleEvent
 
-# Customizing Admin Interface
-admin.site.site_header = "SJP Chapter 2027"
-admin.site.site_title = "SJP Chapter 2027 Admin Portal"
-admin.site.index_title = "Welcome to SJP Chapter 2027 Portal"
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'order', 'show_in_sidebar']
