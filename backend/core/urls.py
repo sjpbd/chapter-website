@@ -3,6 +3,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Customize Django Admin Header
+admin.site.site_header = "St. Joseph Province"
+admin.site.site_title = "St. Joseph Province Admin Portal"
+admin.site.index_title = "Welcome to St. Joseph Province Portal"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),

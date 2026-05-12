@@ -2,7 +2,9 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useDocumentStore } from '../store/documentStore'
 import { useRoute, useRouter } from 'vue-router'
+import GlobalSearch from '../components/GlobalSearch.vue'
 import DocumentCard from '../components/DocumentCard.vue'
+import PDFModal from '../components/PDFModal.vue'
 import { Search, SlidersHorizontal, Loader2, FolderOpen, LayoutGrid, List, X } from 'lucide-vue-next'
 
 const store    = useDocumentStore()
@@ -13,6 +15,19 @@ const searchQuery      = ref(route.query.search ?? '')
 const selectedCategory = ref(null)
 const viewMode         = ref('grid')
 let debounceTimer      = null
+
+const selectedDoc = ref(null)
+const isModalOpen = ref(false)
+
+const openPreview = (doc) => {
+  selectedDoc.value = doc
+  isModalOpen.value = true
+}
+
+const closePreview = () => {
+  isModalOpen.value = false
+  setTimeout(() => { selectedDoc.value = null }, 300) // Clear after animation finishes
+}
 
 onMounted(() => {
   store.fetchCategories()
@@ -75,17 +90,8 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
     <div class="toolbar glass">
       <div class="container toolbar-inner">
         <!-- Search -->
-        <div class="toolbar-search">
-          <Search :size="17" class="ts-icon" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search documents by title or description…"
-            @input="onSearch"
-          />
-          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''; loadDocuments()">
-            <X :size="16" />
-          </button>
+        <div class="toolbar-search" style="flex: 1; display: flex; max-width: 400px;">
+          <GlobalSearch style="width: 100%; max-width: 100%;" />
         </div>
 
         <!-- View Toggle -->
@@ -154,10 +160,19 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
             :key="doc.id"
             :doc="doc"
             :list-mode="viewMode === 'list'"
+            @preview="openPreview"
           />
         </div>
       </main>
     </div>
+
+    <!-- PDF Preview Modal -->
+    <PDFModal 
+      v-if="selectedDoc" 
+      :doc="selectedDoc" 
+      :is-open="isModalOpen" 
+      @close="closePreview" 
+    />
   </div>
 </template>
 

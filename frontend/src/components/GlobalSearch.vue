@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { Search, FileText, X, Clock, ArrowRight, Loader2, TrendingUp } from 'lucide-vue-next'
@@ -25,7 +25,6 @@ const loading      = ref(false)
 const isOpen       = ref(false)
 const activeIndex  = ref(-1)
 const inputRef     = ref(null)
-const wrapperRef   = ref(null)
 let   debounce     = null
 
 // ── recent searches ───────────────────────────────────────────────────────────
@@ -84,8 +83,16 @@ const useRecent = (term) => {
 // ── keyboard ──────────────────────────────────────────────────────────────────
 const onKeydown = (e) => {
   if (!isOpen.value) return
-  if (e.key === 'ArrowDown') { e.preventDefault(); activeIndex.value = Math.min(activeIndex.value + 1, results.value.length - 1) }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); activeIndex.value = Math.max(activeIndex.value - 1, -1) }
+  if (e.key === 'ArrowDown') { 
+    e.preventDefault(); 
+    activeIndex.value = Math.min(activeIndex.value + 1, results.value.length - 1) 
+    scrollToActive()
+  }
+  else if (e.key === 'ArrowUp') { 
+    e.preventDefault(); 
+    activeIndex.value = Math.max(activeIndex.value - 1, -1) 
+    scrollToActive()
+  }
   else if (e.key === 'Escape') close()
   else if (e.key === 'Enter') {
     if (activeIndex.value >= 0) navigate(results.value[activeIndex.value])
@@ -93,263 +100,330 @@ const onKeydown = (e) => {
   }
 }
 
-// ── open / close ──────────────────────────────────────────────────────────────
-const open  = () => { isOpen.value = true }
-const close = () => { isOpen.value = false; activeIndex.value = -1 }
+const scrollToActive = () => {
+  nextTick(() => {
+    const activeEl = document.querySelector('.gs-row.active')
+    if (activeEl) activeEl.scrollIntoView({ block: 'nearest' })
+  })
+}
 
-const onClickOutside = (e) => {
-  if (wrapperRef.value && !wrapperRef.value.contains(e.target)) close()
+// ── open / close ──────────────────────────────────────────────────────────────
+const open = () => { 
+  isOpen.value = true 
+  document.body.style.overflow = 'hidden' // prevent background scrolling
+  nextTick(() => inputRef.value?.focus())
+}
+
+const close = () => { 
+  isOpen.value = false
+  activeIndex.value = -1 
+  document.body.style.overflow = ''
 }
 
 // ── global Ctrl/Cmd+K shortcut ─────────────────────────────────────────────
 const onGlobalKey = (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault()
-    inputRef.value?.focus()
-    open()
+    isOpen.value ? close() : open()
   }
 }
 
 onMounted(() => {
-  document.addEventListener('mousedown', onClickOutside)
   document.addEventListener('keydown', onGlobalKey)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', onClickOutside)
   document.removeEventListener('keydown', onGlobalKey)
   clearTimeout(debounce)
+  document.body.style.overflow = ''
 })
 </script>
 
 <template>
-  <div class="gs-wrap" ref="wrapperRef">
-    <!-- ── Input ── -->
-    <div :class="['gs-box', { active: isOpen }]">
-      <Search :size="16" class="gs-left-icon" />
-
-      <input
-        ref="inputRef"
-        v-model="query"
-        type="text"
-        placeholder="Search documents…"
-        autocomplete="off"
-        spellcheck="false"
-        @focus="open"
-        @keydown="onKeydown"
-        aria-label="Search chapter materials"
-        aria-autocomplete="list"
-      />
-
-      <button v-if="query" class="gs-clear" @click.stop="query = ''; results = []; inputRef?.focus()" tabindex="-1" aria-label="Clear search">
-        <X :size="15" />
-      </button>
-
-      <Loader2 v-if="loading" :size="15" class="gs-spin" />
-
-      <kbd v-if="!isOpen && !query" class="gs-kbd">⌘K</kbd>
-    </div>
-
-    <!-- ── Dropdown ── -->
-    <Transition name="dropdown">
-      <div v-if="isOpen" class="gs-dropdown" role="listbox">
-
-        <!-- Searching state (empty results so far) -->
-        <div v-if="query.trim() && loading && results.length === 0" class="gs-state">
-          <Loader2 :size="22" class="animate-spin" style="color:var(--primary-color)" />
-          <span>Searching…</span>
-        </div>
-
-        <!-- Results -->
-        <template v-else-if="query.trim() && results.length">
-          <p class="gs-section-label"><FileText :size="13" /> Matching Documents</p>
-
-          <div
-            v-for="(doc, i) in results"
-            :key="doc.id"
-            :class="['gs-row', { active: activeIndex === i }]"
-            role="option"
-            @mouseenter="activeIndex = i"
-            @click="navigate(doc)"
-          >
-            <div class="gs-file-icon" :style="{ background: extColor(doc.file) }">
-              <FileText :size="15" color="white" />
-            </div>
-            <div class="gs-row-body">
-              <p class="gs-row-title" v-html="highlight(doc.title, query)" />
-              <p class="gs-row-cat">{{ doc.category_name }}</p>
-            </div>
-            <ArrowRight :size="15" class="gs-row-arrow" />
-          </div>
-
-          <div class="gs-see-all" @click="submitSearch">
-            <Search :size="14" />
-            See all results for <strong>"{{ query }}"</strong>
-          </div>
-        </template>
-
-        <!-- No results -->
-        <div v-else-if="query.trim() && !loading && results.length === 0" class="gs-state">
-          <Search :size="30" style="opacity:0.3" />
-          <p>No documents match <strong>"{{ query }}"</strong></p>
-        </div>
-
-        <!-- Idle: recent searches -->
-        <template v-else-if="!query.trim() && recentSearches.length">
-          <div class="gs-section-label between">
-            <span style="display:flex;align-items:center;gap:6px"><Clock :size="13" /> Recent</span>
-            <button class="gs-clear-recent" @click.stop="clearRecent">Clear all</button>
-          </div>
-          <div
-            v-for="term in recentSearches"
-            :key="term"
-            class="gs-row gs-recent"
-            @click="useRecent(term)"
-          >
-            <Clock :size="15" style="color:var(--text-light);flex-shrink:0" />
-            <span>{{ term }}</span>
-          </div>
-        </template>
-
-        <!-- Idle: empty state -->
-        <div v-else class="gs-state">
-          <TrendingUp :size="30" style="color:var(--primary-color);opacity:0.5" />
-          <p style="color:var(--text-secondary)">Type to search all chapter materials…</p>
-        </div>
-
+  <div class="gs-wrap">
+    <!-- ── Trigger Button ── -->
+    <button class="gs-trigger" @click="open">
+      <div class="trigger-left">
+        <Search :size="16" class="gs-left-icon" />
+        <span class="gs-trigger-text">Search documents…</span>
       </div>
-    </Transition>
+      <kbd class="gs-kbd">⌘K</kbd>
+    </button>
+
+    <!-- ── Command Palette Modal ── -->
+    <Teleport to="body">
+      <Transition name="palette-fade">
+        <div v-if="isOpen" class="palette-overlay" @mousedown.self="close">
+          <div class="palette-container">
+            
+            <!-- Header / Input -->
+            <header class="palette-header">
+              <Search :size="22" class="ph-icon" />
+              <input
+                ref="inputRef"
+                v-model="query"
+                type="text"
+                placeholder="Search all chapter materials…"
+                autocomplete="off"
+                spellcheck="false"
+                @keydown="onKeydown"
+              />
+              <Loader2 v-if="loading" :size="18" class="gs-spin" />
+              <button v-else-if="query" class="ph-clear" @click="query = ''; inputRef?.focus()">
+                <X :size="18" />
+              </button>
+              <kbd class="ph-esc" @click="close">ESC</kbd>
+            </header>
+
+            <!-- Body / Results -->
+            <div class="palette-body" role="listbox">
+              <!-- Searching state -->
+              <div v-if="query.trim() && loading && results.length === 0" class="gs-state">
+                <Loader2 :size="26" class="animate-spin" style="color:var(--primary-color)" />
+                <span>Searching archives…</span>
+              </div>
+
+              <!-- Results -->
+              <template v-else-if="query.trim() && results.length">
+                <p class="gs-section-label"><FileText :size="13" /> Matching Documents</p>
+                <div
+                  v-for="(doc, i) in results"
+                  :key="doc.id"
+                  :class="['gs-row', { active: activeIndex === i }]"
+                  role="option"
+                  @mouseenter="activeIndex = i"
+                  @click="navigate(doc)"
+                >
+                  <div class="gs-file-icon" :style="{ background: extColor(doc.file) }">
+                    <FileText :size="15" color="white" />
+                  </div>
+                  <div class="gs-row-body">
+                    <p class="gs-row-title" v-html="highlight(doc.title, query)" />
+                    <p class="gs-row-cat">{{ doc.category_name }}</p>
+                  </div>
+                  <ArrowRight :size="15" class="gs-row-arrow" />
+                </div>
+                
+                <div class="gs-see-all" @click="submitSearch">
+                  <Search :size="15" />
+                  <span>See all results for <strong>"{{ query }}"</strong></span>
+                </div>
+              </template>
+
+              <!-- No results -->
+              <div v-else-if="query.trim() && !loading && results.length === 0" class="gs-state">
+                <Search :size="40" style="opacity:0.2; margin-bottom: 10px;" />
+                <p>No documents found for <strong>"{{ query }}"</strong></p>
+                <span style="font-size: 0.8rem; opacity: 0.7">Try searching by a different keyword or category.</span>
+              </div>
+
+              <!-- Idle: recent searches -->
+              <template v-else-if="!query.trim() && recentSearches.length">
+                <div class="gs-section-label between">
+                  <span style="display:flex;align-items:center;gap:6px"><Clock :size="13" /> Recent Searches</span>
+                  <button class="gs-clear-recent" @click.stop="clearRecent">Clear History</button>
+                </div>
+                <div
+                  v-for="term in recentSearches"
+                  :key="term"
+                  class="gs-row gs-recent"
+                  @click="useRecent(term)"
+                >
+                  <Clock :size="15" style="color:var(--text-light);flex-shrink:0" />
+                  <span>{{ term }}</span>
+                </div>
+              </template>
+
+              <!-- Idle: empty state -->
+              <div v-else class="gs-state idle">
+                <TrendingUp :size="36" style="color:var(--primary-color);opacity:0.4; margin-bottom: 10px;" />
+                <p>Search the St. Joseph Province Repository</p>
+                <span style="font-size: 0.85rem; opacity: 0.6">Find constitutions, circulars, meeting minutes, and more.</span>
+              </div>
+            </div>
+            
+            <footer class="palette-footer">
+              <div class="pf-hint"><span>↑↓</span> to navigate</div>
+              <div class="pf-hint"><span>Enter</span> to select</div>
+              <div class="pf-hint"><span>ESC</span> to close</div>
+            </footer>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
-/* ── wrapper ── */
+/* ── Trigger Button ── */
 .gs-wrap {
-  position: relative;
-  flex: 1;
-  max-width: 420px;
+  width: 100%;
+  max-width: 320px;
 }
 
-/* ── input box ── */
-.gs-box {
+.gs-trigger {
+  width: 100%;
   display: flex;
   align-items: center;
-  height: 42px;
-  padding: 0 14px;
-  gap: 0;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 50px;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 12px;
   background: rgba(255,255,255,0.85);
-  transition: all 0.25s ease;
-  cursor: text;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
-.gs-box.active {
-  border-color: var(--primary-color);
+.gs-trigger:hover {
   background: white;
-  border-radius: 14px 14px 0 0;
-  box-shadow: 0 0 0 4px rgba(0,120,212,0.1);
-  border-bottom-color: transparent;
+  border-color: rgba(0,120,212,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-.gs-left-icon {
+.trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-secondary);
-  flex-shrink: 0;
-  margin-right: 10px;
 }
 
-.gs-box input {
+.gs-trigger-text {
+  font-size: 0.9rem;
+}
+
+.gs-kbd {
+  font-size: 0.65rem;
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 600;
+}
+
+/* ── Command Palette Modal ── */
+.palette-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+
+.palette-container {
+  width: 100%;
+  max-width: 640px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0,0,0,0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: palette-slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 0 1rem;
+}
+
+/* ── Header / Input ── */
+.palette-header {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 68px;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 1rem;
+}
+
+.ph-icon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.palette-header input {
   flex: 1;
   border: none;
   background: transparent;
-  font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 1.25rem;
   color: var(--text-main);
   outline: none;
   min-width: 0;
 }
 
-.gs-box input::placeholder { color: var(--text-light); }
+.palette-header input::placeholder {
+  color: var(--text-light);
+}
 
-.gs-clear {
-  background: none;
+.ph-clear {
+  background: rgba(0,0,0,0.05);
   color: var(--text-secondary);
-  width: 22px; height: 22px;
+  width: 26px; height: 26px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: var(--transition-smooth);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.gs-clear:hover { background: #f0f0f0; color: var(--text-main); }
+.ph-clear:hover { background: #fee2e2; color: #dc2626; }
 
-.gs-kbd {
-  font-size: 0.68rem;
-  background: #f3f3f3;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 2px 7px;
+.ph-esc {
+  font-size: 0.65rem;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+  padding: 4px 8px;
   color: var(--text-secondary);
-  margin-left: 8px;
-  white-space: nowrap;
-  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.gs-spin {
-  color: var(--primary-color);
-  flex-shrink: 0;
-  margin-left: 8px;
-  animation: spin 0.8s linear infinite;
-}
-
-/* ── dropdown ── */
-.gs-dropdown {
-  position: absolute;
-  top: calc(100% - 1px);
-  left: 0; right: 0;
-  background: white;
-  border: 1.5px solid var(--primary-color);
-  border-top: none;
-  border-radius: 0 0 16px 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.14);
-  z-index: 3000;
-  overflow: hidden;
-  max-height: 500px;
+/* ── Body ── */
+.palette-body {
+  max-height: 400px;
   overflow-y: auto;
+  padding: 0.5rem 0;
 }
-
-/* scrollbar */
-.gs-dropdown::-webkit-scrollbar { width: 4px; }
-.gs-dropdown::-webkit-scrollbar-thumb { background: rgba(0,120,212,0.25); border-radius: 4px; }
+.palette-body::-webkit-scrollbar { width: 6px; }
+.palette-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 6px; }
 
 /* section label */
 .gs-section-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px 6px;
-  font-size: 0.7rem;
+  padding: 12px 1.5rem 6px;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
 }
 .gs-section-label.between { justify-content: space-between; }
-.gs-clear-recent { font-size: 0.72rem; font-weight: 700; color: var(--primary-color); background: none; cursor: pointer; }
+.gs-clear-recent { font-size: 0.72rem; font-weight: 700; color: var(--primary-color); background: none; cursor: pointer; border: none;}
 
 /* result row */
 .gs-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
+  gap: 14px;
+  padding: 12px 1.5rem;
   cursor: pointer;
-  transition: background 0.12s;
+  border-left: 3px solid transparent;
 }
-.gs-row:hover, .gs-row.active { background: rgba(0,120,212,0.06); }
+.gs-row.active { 
+  background: rgba(0,120,212,0.04); 
+  border-left-color: var(--primary-color);
+}
 
 .gs-file-icon {
-  width: 34px; height: 34px;
-  border-radius: 9px;
+  width: 38px; height: 38px;
+  border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
@@ -357,7 +431,7 @@ onBeforeUnmount(() => {
 .gs-row-body { flex: 1; min-width: 0; }
 
 .gs-row-title {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-main);
   white-space: nowrap;
@@ -375,55 +449,107 @@ onBeforeUnmount(() => {
 }
 
 .gs-row-cat {
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .gs-row-arrow {
-  color: var(--text-light);
+  color: var(--primary-color);
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.12s, transform 0.12s;
 }
-.gs-row:hover .gs-row-arrow,
-.gs-row.active .gs-row-arrow { opacity: 1; transform: translateX(3px); }
+.gs-row.active .gs-row-arrow { opacity: 1; transform: translateX(4px); }
 
 /* recent */
-.gs-recent { color: var(--text-secondary); font-size: 0.9rem; }
+.gs-recent { color: var(--text-secondary); font-size: 0.95rem; padding: 10px 1.5rem;}
+.gs-recent.active { background: rgba(0,0,0,0.03); color: var(--text-main); }
 
 /* see all */
 .gs-see-all {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  gap: 10px;
+  padding: 14px 1.5rem;
+  font-size: 0.9rem;
   color: var(--primary-color);
   cursor: pointer;
-  border-top: 1px solid #f4f4f4;
-  transition: background 0.12s;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(0,120,212,0.02);
 }
-.gs-see-all:hover { background: rgba(0,120,212,0.05); }
+.gs-see-all:hover { background: rgba(0,120,212,0.06); }
 
-/* state (loading, empty, hint) */
+/* state */
 .gs-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 3rem 1.5rem;
+  justify-content: center;
+  padding: 4rem 2rem;
   text-align: center;
-  font-size: 0.9rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.gs-spin {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Footer ── */
+.palette-footer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #f9fafb;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pf-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.pf-hint span {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
   color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 /* ── animation ── */
-.dropdown-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
-.dropdown-leave-active { transition: opacity 0.15s ease; }
-.dropdown-enter-from   { opacity: 0; transform: translateY(-6px); }
-.dropdown-leave-to     { opacity: 0; }
+.palette-fade-enter-active,
+.palette-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.palette-fade-enter-from,
+.palette-fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes palette-slide-down {
+  from { opacity: 0; transform: scale(0.98) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .palette-overlay { padding-top: 2vh; }
+  .palette-container { max-height: 96vh; }
+  .palette-body { max-height: calc(96vh - 68px - 40px); }
+  .palette-footer { display: none; }
+}
 </style>

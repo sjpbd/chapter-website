@@ -6,6 +6,8 @@ const props = defineProps({
   listMode: { type: Boolean, default: false }
 })
 
+const emit = defineEmits(['preview'])
+
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
 
@@ -27,7 +29,7 @@ const extColor = (e) => ({
     <div class="card-info">
       <div class="cat-tag">{{ doc.category_name }}</div>
       <h3 class="doc-title">{{ doc.title }}</h3>
-      <p class="doc-desc">{{ doc.description || 'No description provided.' }}</p>
+      <p class="doc-desc" v-if="doc.description">{{ doc.description }}</p>
     </div>
 
     <div class="card-footer">
@@ -36,9 +38,9 @@ const extColor = (e) => ({
         <span>{{ formatDate(doc.uploaded_at) }}</span>
       </div>
       <div class="actions">
-        <a :href="doc.file" target="_blank" class="action-btn" title="Preview">
+        <button @click.prevent="emit('preview', doc)" class="action-btn" title="Preview">
           <Eye :size="17" />
-        </a>
+        </button>
         <a :href="doc.file" download class="action-btn dl" title="Download">
           <Download :size="17" />
         </a>

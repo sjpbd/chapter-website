@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
-import { Home, FolderOpen, Info, Menu, X, FileText } from 'lucide-vue-next'
+import { RouterLink, useRoute } from 'vue-router'
+import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays } from 'lucide-vue-next'
 import GlobalSearch from './GlobalSearch.vue'
 
 const isScrolled = ref(false)
 const isMenuOpen = ref(false)
+const route = useRoute()
 
 const handleScroll = () => { isScrolled.value = window.scrollY > 30 }
 onMounted(() => window.addEventListener('scroll', handleScroll))
@@ -37,10 +38,16 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         <RouterLink to="/about" class="nav-item">
           <Info :size="17" /><span>About</span>
         </RouterLink>
+        <RouterLink to="/prayer" class="nav-item nav-prayer">
+          <HandHeart :size="17" /><span>Prayer</span>
+        </RouterLink>
+        <RouterLink to="/schedule" class="nav-item nav-schedule">
+          <CalendarDays :size="17" /><span>Schedule</span>
+        </RouterLink>
       </div>
 
       <!-- Global Search (desktop) -->
-      <div class="nav-search-area">
+      <div v-if="route.path !== '/repository'" class="nav-search-area">
         <GlobalSearch />
       </div>
 
@@ -62,7 +69,13 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         <RouterLink to="/about" class="mob-item" @click="isMenuOpen = false">
           <Info :size="20" /> About
         </RouterLink>
-        <div class="mob-search">
+        <RouterLink to="/prayer" class="mob-item mob-prayer" @click="isMenuOpen = false">
+          <HandHeart :size="20" /> Prayer
+        </RouterLink>
+        <RouterLink to="/schedule" class="mob-item mob-schedule" @click="isMenuOpen = false">
+          <CalendarDays :size="20" /> Schedule
+        </RouterLink>
+        <div v-if="route.path !== '/repository'" class="mob-search">
           <GlobalSearch />
         </div>
       </div>
@@ -76,14 +89,17 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   top: 0; left: 0; right: 0;
   z-index: 1000;
   height: 72px;
-  transition: var(--transition-smooth);
+  background-color: transparent;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  border-bottom: 1px solid transparent;
 }
 
 .navbar.scrolled {
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background-color: rgba(255,255,255,0.88);
   box-shadow: 0 2px 20px rgba(0,0,0,0.07);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 .nav-inner {
@@ -144,6 +160,32 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   background: rgba(0,120,212,0.07);
 }
 
+/* Prayer nav item — gold accent */
+.nav-prayer {
+  color: #8a5e00;
+  background: linear-gradient(135deg, rgba(245,200,66,0.15), rgba(200,140,10,0.1));
+  border: 1px solid rgba(200,160,50,0.25);
+}
+.nav-prayer:hover,
+.nav-prayer.router-link-active {
+  color: #7a4e00;
+  background: linear-gradient(135deg, rgba(245,200,66,0.28), rgba(200,140,10,0.2));
+  border-color: rgba(200,160,50,0.5);
+}
+
+/* Schedule nav item — teal/blue accent */
+.nav-schedule {
+  color: #0369a1;
+  background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(2,132,199,0.08));
+  border: 1px solid rgba(14,165,233,0.25);
+}
+.nav-schedule:hover,
+.nav-schedule.router-link-active {
+  color: #075985;
+  background: linear-gradient(135deg, rgba(14,165,233,0.22), rgba(2,132,199,0.16));
+  border-color: rgba(14,165,233,0.45);
+}
+
 /* Search area */
 .nav-search-area {
   flex: 1;
@@ -192,6 +234,28 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   background: rgba(0,120,212,0.07);
 }
 
+/* Mobile prayer item */
+.mob-prayer {
+  color: #8a5e00;
+  background: linear-gradient(135deg, rgba(245,200,66,0.12), rgba(200,140,10,0.08));
+  border: 1px solid rgba(200,160,50,0.2);
+}
+.mob-prayer:hover, .mob-prayer.router-link-active {
+  color: #7a4e00;
+  background: linear-gradient(135deg, rgba(245,200,66,0.25), rgba(200,140,10,0.18));
+}
+
+/* Mobile schedule item */
+.mob-schedule {
+  color: #0369a1;
+  background: linear-gradient(135deg, rgba(14,165,233,0.1), rgba(2,132,199,0.07));
+  border: 1px solid rgba(14,165,233,0.2);
+}
+.mob-schedule:hover, .mob-schedule.router-link-active {
+  color: #075985;
+  background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.15));
+}
+
 .mob-search {
   margin-top: 0.8rem;
   width: 100%;
@@ -203,7 +267,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   overflow: hidden;
 }
 .drawer-enter-from, .drawer-leave-to { max-height: 0; opacity: 0; }
-.drawer-enter-to, .drawer-leave-from { max-height: 600px; opacity: 1; }
+.drawer-enter-to, .drawer-leave-from { max-height: 700px; opacity: 1; }
 
 @media (max-width: 900px) {
   .nav-links { display: none; }
