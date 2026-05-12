@@ -1,6 +1,9 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { MapPin, Phone, Globe, Heart } from 'lucide-vue-next'
+import { useConfigStore } from '../store/configStore'
+
+const configStore = useConfigStore()
 </script>
 
 <template>
@@ -12,10 +15,10 @@ import { MapPin, Phone, Globe, Heart } from 'lucide-vue-next'
         <div class="f-col brand-col">
           <div class="f-logo">
             <div class="f-logo-icon"></div>
-            <span>SJP Chapter Hub</span>
+            <span>{{ configStore.siteName }}</span>
           </div>
           <p class="f-desc">
-            The official digital repository for St. Joseph Province chapter documents, provincial records, and legislative materials.
+            {{ configStore.footerText || 'The official digital repository for St. Joseph Province chapter documents, provincial records, and legislative materials.' }}
           </p>
         </div>
 
@@ -34,14 +37,14 @@ import { MapPin, Phone, Globe, Heart } from 'lucide-vue-next'
           <h4 class="f-heading">Contact</h4>
           <ul class="f-info">
             <li><MapPin :size="15" /> St. Joseph Province</li>
-            <li><Globe :size="15" /> Province of the Josephites</li>
+            <li><Globe :size="15" /> Dhaka, Bangladesh</li>
           </ul>
         </div>
       </div>
 
       <div class="container footer-bottom">
         <p>© {{ new Date().getFullYear() }} St. Joseph Province. All rights reserved.</p>
-        <p class="made-with">Made with <Heart :size="14" color="#d13438" fill="#d13438" /> for the Chapter Community</p>
+
       </div>
     </div>
   </footer>

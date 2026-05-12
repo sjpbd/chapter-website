@@ -3,10 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay
+from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, SiteConfiguration
 from .serializers import (
     CategorySerializer, ChapterDocumentSerializer, HomeSliderSerializer,
-    FeatureSerializer, SiteStatSerializer, ChapterPrayerSerializer, ScheduleDaySerializer
+    FeatureSerializer, SiteStatSerializer, ChapterPrayerSerializer, ScheduleDaySerializer, SiteConfigurationSerializer
 )
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -54,3 +54,18 @@ class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
     )
     serializer_class = ScheduleDaySerializer
 
+
+class SiteConfigurationView(APIView):
+    """Returns the global site configuration (logo, site name, etc.)."""
+    def get(self, request):
+        config = SiteConfiguration.objects.first()
+        if not config:
+            # Provide default if none exists yet
+            return Response({
+                'site_name': 'SJP Chapter Hub',
+                'logo': None,
+                'favicon': None,
+                'footer_text': ''
+            })
+        serializer = SiteConfigurationSerializer(config, context={'request': request})
+        return Response(serializer.data)

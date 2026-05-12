@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, ScheduleEvent
+from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, ScheduleEvent, SiteConfiguration
+
+class SiteConfigurationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteConfiguration
+        fields = '__all__'
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

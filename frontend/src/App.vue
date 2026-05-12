@@ -1,7 +1,14 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useConfigStore } from './store/configStore'
 import Navbar from './components/Navbar.vue'
 import SiteFooter from './components/SiteFooter.vue'
+
+const configStore = useConfigStore()
+onMounted(() => {
+  configStore.fetchConfig()
+})
 </script>
 
 <template>

@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CategoryViewSet, ChapterDocumentViewSet, HomeSliderViewSet,
-    FeatureViewSet, SiteStatViewSet, ChapterPrayerView, ScheduleViewSet
+    FeatureViewSet, SiteStatViewSet, ChapterPrayerView, ScheduleViewSet, SiteConfigurationView
 )
 
 router = DefaultRouter()
@@ -16,6 +16,7 @@ router.register(r'schedule', ScheduleViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('prayer/', ChapterPrayerView.as_view(), name='chapter-prayer'),
+    path('config/', SiteConfigurationView.as_view(), name='site-config'),
 ]
 
 

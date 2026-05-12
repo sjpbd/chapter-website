@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.utils.html import format_html
-from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, ScheduleEvent
+from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, ScheduleEvent, SiteConfiguration
 from .admin_site import sjp_admin_site
 
 # Registering built-in Auth models to custom site
@@ -95,3 +95,13 @@ class ScheduleDayAdmin(admin.ModelAdmin):
         return format_html('<b>{}</b> events', count)
 
 
+
+@admin.register(SiteConfiguration, site=sjp_admin_site)
+class SiteConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['site_name']
+    
+    def has_add_permission(self, request):
+        return not SiteConfiguration.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False # Prevent deletion of site config

@@ -2,7 +2,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays } from 'lucide-vue-next'
+import { useConfigStore } from '../store/configStore'
 import GlobalSearch from './GlobalSearch.vue'
+
+const configStore = useConfigStore()
 
 const isScrolled = ref(false)
 const isMenuOpen = ref(false)
@@ -19,11 +22,12 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <!-- Logo -->
       <RouterLink to="/" class="logo">
         <div class="logo-icon">
-          <FileText :size="22" color="white" />
+          <img v-if="configStore.logo" :src="configStore.logo" :alt="configStore.siteName" class="dynamic-logo" />
+          <FileText v-else :size="22" color="white" />
         </div>
         <div class="logo-text">
-          <span class="brand">SJP</span>
-          <span class="tagline">Chapter Hub</span>
+          <span class="brand">{{ configStore.siteName.split(' ')[0] }}</span>
+          <span class="tagline">{{ configStore.siteName.split(' ').slice(1).join(' ') }}</span>
         </div>
       </RouterLink>
 
@@ -146,6 +150,13 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 6px 18px rgba(0,120,212,0.25);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.dynamic-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .logo-text { display: flex; flex-direction: column; line-height: 1.1; }

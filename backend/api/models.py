@@ -210,3 +210,22 @@ class ScheduleEvent(models.Model):
 
     def __str__(self):
         return f"{self.time_start.strftime('%H:%M')} — {self.title}"
+
+
+class SiteConfiguration(models.Model):
+    """Singleton model for global site settings."""
+    site_name = models.CharField(max_length=255, default="SJP Chapter Hub")
+    logo = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Upload the official chapter logo")
+    favicon = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Upload the site favicon (.ico or .png)")
+    footer_text = models.TextField(blank=True, help_text="Optional text for the footer description")
+
+    class Meta:
+        verbose_name = "Site Configuration"
+        verbose_name_plural = "Site Configuration"
+
+    def clean(self):
+        if not self.pk and SiteConfiguration.objects.exists():
+            raise ValidationError("Only one Site Configuration is allowed.")
+
+    def __str__(self):
+        return self.site_name
