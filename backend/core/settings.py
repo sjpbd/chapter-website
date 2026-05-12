@@ -24,13 +24,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9^*^18+l7twekcuw%m2!e(@1c#q5s!lp@gsiex^4c3a2@=^+i9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# ENVIRONMENT detection
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
-
 DEBUG = ENVIRONMENT == 'development'
 
+print(f"--- ACTIVE ENVIRONMENT: {ENVIRONMENT.upper()} ---")
+
 if ENVIRONMENT == 'production':
+    print("--- DATABASE: PostgreSQL (Live) ---")
     ALLOWED_HOSTS = ['chapter.sjp.org.bd', 'www.chapter.sjp.org.bd', '127.0.0.1']
 else:
+    print("--- DATABASE: SQLite (Local) ---")
     ALLOWED_HOSTS = ['*']
 
 

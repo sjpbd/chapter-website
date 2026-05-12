@@ -38,11 +38,14 @@ class SiteStatViewSet(viewsets.ReadOnlyModelViewSet):
 class ChapterPrayerView(APIView):
     """Returns the single active Chapter Prayer."""
     def get(self, request):
-        prayer = ChapterPrayer.objects.filter(is_active=True).first()
-        if not prayer:
-            return Response({'detail': 'No active prayer found.'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ChapterPrayerSerializer(prayer, context={'request': request})
-        return Response(serializer.data)
+        try:
+            prayer = ChapterPrayer.objects.filter(is_active=True).first()
+            if not prayer:
+                return Response({'detail': 'No active prayer found.'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = ChapterPrayerSerializer(prayer, context={'request': request})
+            return Response(serializer.data)
+        except Exception:
+            return Response({'detail': 'Database table not ready.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 class ScheduleViewSet(viewsets.ReadOnlyModelViewSet):
     """Returns all active schedule days with their nested events."""
