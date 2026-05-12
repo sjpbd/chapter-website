@@ -1,36 +1,42 @@
 from django.contrib import admin
+from django.contrib.auth.models import User, Group
 from django.utils.html import format_html
 from .models import Category, ChapterDocument, HomeSlider, Feature, SiteStat, ChapterPrayer, ScheduleDay, ScheduleEvent
+from .admin_site import sjp_admin_site
 
-@admin.register(Category)
+# Registering built-in Auth models to custom site
+sjp_admin_site.register(User)
+sjp_admin_site.register(Group)
+
+@admin.register(Category, site=sjp_admin_site)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'order', 'show_in_sidebar']
     list_editable = ['order', 'show_in_sidebar']
     prepopulated_fields = {'slug': ('name',)}
 
-@admin.register(ChapterDocument)
+@admin.register(ChapterDocument, site=sjp_admin_site)
 class ChapterDocumentAdmin(admin.ModelAdmin):
     list_display = ['title', 'category', 'uploaded_at']
     list_filter = ['category']
     search_fields = ['title', 'description']
 
-@admin.register(HomeSlider)
+@admin.register(HomeSlider, site=sjp_admin_site)
 class HomeSliderAdmin(admin.ModelAdmin):
     list_display = ['title', 'order', 'is_active']
     list_editable = ['order', 'is_active']
 
-@admin.register(Feature)
+@admin.register(Feature, site=sjp_admin_site)
 class FeatureAdmin(admin.ModelAdmin):
     list_display = ['title', 'icon', 'order', 'is_active']
     list_editable = ['order', 'is_active']
 
-@admin.register(SiteStat)
+@admin.register(SiteStat, site=sjp_admin_site)
 class SiteStatAdmin(admin.ModelAdmin):
     list_display = ['label', 'value', 'order', 'is_active']
     list_editable = ['order', 'is_active']
 
 
-@admin.register(ChapterPrayer)
+@admin.register(ChapterPrayer, site=sjp_admin_site)
 class ChapterPrayerAdmin(admin.ModelAdmin):
     list_display = ['title', 'author_attribution', 'is_active', 'updated_at']
     list_editable = ['is_active']
@@ -66,7 +72,7 @@ class ScheduleEventInline(admin.TabularInline):
     ordering = ['order', 'time_start']
 
 
-@admin.register(ScheduleDay)
+@admin.register(ScheduleDay, site=sjp_admin_site)
 class ScheduleDayAdmin(admin.ModelAdmin):
     list_display  = ['date', 'day_label', 'theme', 'event_count', 'order', 'is_active']
     list_editable = ['order', 'is_active']

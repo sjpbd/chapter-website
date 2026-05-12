@@ -3,8 +3,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from api.admin_site import sjp_admin_site
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', sjp_admin_site.urls),
     path('api/', include('api.urls')),
 ]
 
