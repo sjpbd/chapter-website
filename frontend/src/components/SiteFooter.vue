@@ -14,7 +14,9 @@ const configStore = useConfigStore()
         <!-- Brand -->
         <div class="f-col brand-col">
           <div class="f-logo">
-            <div class="f-logo-icon"></div>
+            <div class="f-logo-icon" :style="configStore.logo ? { background: 'none' } : {}">
+              <img v-if="configStore.logo" :src="configStore.logo" :alt="configStore.siteName" class="dynamic-logo" />
+            </div>
             <span>{{ configStore.siteName }}</span>
           </div>
           <p class="f-desc">
@@ -83,6 +85,16 @@ const configStore = useConfigStore()
   border-radius: 10px;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.dynamic-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .f-desc { font-size: 0.9rem; line-height: 1.7; max-width: 320px; }

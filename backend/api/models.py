@@ -32,7 +32,14 @@ class ChapterDocument(models.Model):
 class HomeSlider(models.Model):
     title = models.CharField(max_length=200)
     subtitle = models.TextField(blank=True)
-    image = models.ImageField(upload_to='sliders/')
+    image = models.ImageField(upload_to='sliders/', blank=True, null=True, help_text="Upload an image file (used as slide background or video thumbnail/poster)")
+    video = models.FileField(upload_to='sliders/', blank=True, null=True, help_text="Upload a video file (mp4, webm) instead of or in addition to an image")
+    media_type = models.CharField(
+        max_length=10,
+        choices=[('image', 'Image'), ('video', 'Video')],
+        default='image',
+        help_text="Choose whether this slide displays an image or a video"
+    )
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     link = models.URLField(blank=True, help_text="Optional link for the slider button")

@@ -1,9 +1,14 @@
 {% extends "admin/base.html" %}
 
-{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}SJP Chapter 2027 Admin Portal{% endblock %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ site_name|default:"SJP Chapter 2027" }} Admin Portal{% endblock %}
 
 {% block branding %}
-<div id="site-name"><a href="{% url 'admin:index' %}">SJP Chapter 2027</a></div>
+<div id="site-name" style="display: flex; align-items: center; gap: 12px;">
+  {% if site_logo %}
+    <img src="{{ site_logo }}" alt="{{ site_name|default:"SJP Chapter 2027" }}" style="height: 32px; width: auto; object-fit: contain; border-radius: 4px; background: rgba(255,255,255,0.1); padding: 2px;" />
+  {% endif %}
+  <a href="{% url 'admin:index' %}">{{ site_name|default:"SJP Chapter 2027" }}</a>
+</div>
 {% if user.is_anonymous %}
   {% include "admin/color_theme_toggle.html" %}
 {% endif %}
