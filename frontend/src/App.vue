@@ -73,6 +73,10 @@ onMounted(() => {
   padding-top: 84px; /* height of fixed navbar */
 }
 
+#app-shell:has(.home) .main-content {
+  padding-top: 0;
+}
+
 /* Page transitions */
 .page-enter-active,
 .page-leave-active {
