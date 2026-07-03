@@ -48,14 +48,13 @@ const toggleFlip = () => {
     <div class="deco-cross cross-br" aria-hidden="true">✝</div>
 
     <!-- ─── HERO HEADER ─────────────────────────────────────── -->
-    <header class="prayer-hero">
+    <header class="prayer-hero" v-if="loading || (prayer && (prayer.title || prayer.subtitle))">
       <!-- Title block -->
       <div class="hero-text">
-        <span class="eyebrow-label">Spiritual Reflection</span>
-        <h1 class="hero-title" v-if="prayer">{{ prayer.title }}</h1>
+        <span class="eyebrow-label" v-if="loading || (prayer && prayer.title)">Spiritual Reflection</span>
+        <h1 class="hero-title" v-if="prayer && prayer.title">{{ prayer.title }}</h1>
         <h1 class="hero-title" v-else-if="loading">Loading Prayer…</h1>
-        <h1 class="hero-title" v-else>Prayer for the Chapter 2027</h1>
-        <p class="hero-subtitle" v-if="prayer">{{ prayer.subtitle }}</p>
+        <p class="hero-subtitle" v-if="prayer && prayer.subtitle">{{ prayer.subtitle }}</p>
       </div>
 
       <!-- Gold divider -->

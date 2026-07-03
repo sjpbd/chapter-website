@@ -81,8 +81,9 @@ class ChapterPrayer(models.Model):
     """Singleton model — only one row should exist. Admins edit the prayer here."""
     title = models.CharField(
         max_length=200,
+        blank=True,
         default="Prayer for the St. Joseph Province Chapter 2027",
-        help_text="The heading displayed on the prayer card"
+        help_text="The heading displayed on the prayer card (optional)"
     )
     subtitle = models.CharField(
         max_length=300,
