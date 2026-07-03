@@ -1,5 +1,5 @@
 <script setup>
-import { X, Download, Maximize2, Loader2 } from 'lucide-vue-next'
+import { X, Download, Maximize2, Loader2, Share2, Check } from 'lucide-vue-next'
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
@@ -34,6 +34,18 @@ const isPdf = computed(() => {
 const viewType = ref('normal')
 const isLoadingFlipbook = ref(false)
 const flipbookContainerRef = ref(null)
+const isLinkCopied = ref(false)
+
+const copyShareLink = async () => {
+  const shareUrl = `${window.location.origin}/repository?doc=${props.doc.id}`
+  try {
+    await navigator.clipboard.writeText(shareUrl)
+    isLinkCopied.value = true
+    setTimeout(() => { isLinkCopied.value = false }, 2000)
+  } catch (err) {
+    console.error('Failed to copy link:', err)
+  }
+}
 
 // For mobile and non-PDF files, Google Docs Viewer provides a much better "direct" experience
 const viewerUrl = computed(() => {
@@ -144,6 +156,15 @@ onUnmounted(() => {
             </div>
 
             <div class="modal-actions">
+              <button 
+                @click="copyShareLink" 
+                class="icon-btn" 
+                :class="{ copied: isLinkCopied }"
+                :title="isLinkCopied ? 'Link copied!' : 'Copy shareable link'"
+              >
+                <Check v-if="isLinkCopied" :size="18" />
+                <Share2 v-else :size="18" />
+              </button>
               <a :href="absoluteUrl" target="_blank" title="Open in new tab" class="icon-btn">
                 <Maximize2 :size="18" />
               </a>
@@ -307,6 +328,11 @@ onUnmounted(() => {
 .close-btn:hover {
   background: #fee2e2;
   color: #dc2626;
+}
+
+.icon-btn.copied {
+  color: #16a34a !important;
+  background: rgba(22, 163, 74, 0.1) !important;
 }
 
 .modal-body {

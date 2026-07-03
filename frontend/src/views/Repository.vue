@@ -33,10 +33,14 @@ const getCategoryName = (id) => {
 const openPreview = (doc) => {
   selectedDoc.value = doc
   isModalOpen.value = true
+  router.replace({ query: { ...route.query, doc: doc.id } })
 }
 
 const closePreview = () => {
   isModalOpen.value = false
+  const nextQuery = { ...route.query }
+  delete nextQuery.doc
+  router.replace({ query: nextQuery })
   setTimeout(() => { selectedDoc.value = null }, 300) // Clear after animation finishes
 }
 
@@ -51,11 +55,22 @@ watch(() => route.query.search, (val) => {
   loadDocuments()
 })
 
-const loadDocuments = () => {
+const loadDocuments = async () => {
   const params = {}
   if (selectedCategory.value) params.category = selectedCategory.value
   if (searchQuery.value.trim()) params.search = searchQuery.value.trim()
-  store.fetchDocuments(params)
+  await store.fetchDocuments(params)
+  
+  // Handle deep-linking for specific document preview on load
+  if (route.query.doc) {
+    const docId = parseInt(route.query.doc)
+    const matchedDoc = store.documents.find(d => d.id === docId)
+    if (matchedDoc) {
+      // Open preview without re-pushing state
+      selectedDoc.value = matchedDoc
+      isModalOpen.value = true
+    }
+  }
 }
 
 const onSearch = () => {
