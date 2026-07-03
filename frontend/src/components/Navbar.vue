@@ -21,7 +21,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
     <div class="nav-inner">
       <!-- Logo -->
       <RouterLink to="/" class="logo">
-        <div class="logo-icon">
+        <div class="logo-icon" :class="{ 'has-logo': configStore.logo }">
           <img v-if="configStore.logo" :src="configStore.logo" :alt="configStore.siteName" class="dynamic-logo" />
           <FileText v-else :size="22" color="white" />
         </div>
@@ -144,24 +144,31 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 }
 
 .logo-icon {
-  width: 42px; height: 42px;
+  width: 52px; height: 52px;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 6px 18px rgba(0,120,212,0.25);
   flex-shrink: 0;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.logo-icon.has-logo {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .dynamic-logo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-.brand    { font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; color: var(--text-main); }
-.tagline  { font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); opacity: 0.8; }
+.brand    { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.5px; color: var(--text-main); }
+.tagline  { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* Nav links */
 .nav-links {
