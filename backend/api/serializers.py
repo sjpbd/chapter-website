@@ -36,7 +36,7 @@ class SiteStatSerializer(serializers.ModelSerializer):
 class ChapterPrayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChapterPrayer
-        fields = ['id', 'title', 'subtitle', 'body', 'prayer_intention', 'author_attribution', 'updated_at']
+        fields = ['id', 'title', 'subtitle', 'body', 'prayer_intention', 'author_attribution', 'front_image', 'back_image', 'updated_at']
 
 class ScheduleEventSerializer(serializers.ModelSerializer):
     category_display = serializers.CharField(source='get_category_display', read_only=True)

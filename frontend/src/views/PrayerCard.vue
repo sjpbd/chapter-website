@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { RefreshCw, Download } from 'lucide-vue-next'
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api'
 
 const prayer = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const isFlipped = ref(false)
 
 onMounted(async () => {
   try {
@@ -24,6 +26,13 @@ const stanzas = computed(() => {
   if (!prayer.value?.body) return []
   return prayer.value.body.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean)
 })
+
+const hasFrontImage = computed(() => !!prayer.value?.front_image)
+const hasBackImage = computed(() => !!prayer.value?.back_image)
+
+const toggleFlip = () => {
+  isFlipped.value = !isFlipped.value
+}
 </script>
 
 <template>
@@ -42,6 +51,7 @@ const stanzas = computed(() => {
     <header class="prayer-hero">
       <!-- Title block -->
       <div class="hero-text">
+        <span class="eyebrow-label">Spiritual Reflection</span>
         <h1 class="hero-title" v-if="prayer">{{ prayer.title }}</h1>
         <h1 class="hero-title" v-else-if="loading">Loading Prayer…</h1>
         <h1 class="hero-title" v-else>Prayer for the Chapter 2027</h1>
@@ -54,10 +64,86 @@ const stanzas = computed(() => {
       </div>
     </header>
 
-    <!-- ─── PRAYER BODY CARD ─────────────────────────────────── -->
-    <section class="prayer-card-wrap">
-      <article class="prayer-card" v-if="!loading && !error && prayer">
+    <!-- ─── PRAYER CONTENT SECTION ───────────────────────────── -->
+    <section class="prayer-content-wrap">
+      
+      <!-- Interactive 3D Flipping Card -->
+      <div v-if="!loading && !error && prayer && hasFrontImage" class="interactive-card-wrapper">
+        <div class="flip-card-container" @click="toggleFlip">
+          <div :class="['flip-card-inner', { 'is-flipped': isFlipped }]">
+            
+            <!-- FRONT SIDE -->
+            <div class="card-face card-face-front">
+              <div class="gilded-border"></div>
+              <img :src="prayer.front_image" class="card-media-file" alt="Prayer Card Front Cover" />
+              <div class="card-hint">
+                <span>Click to Flip Card</span>
+                <RefreshCw :size="14" class="hint-icon" />
+              </div>
+            </div>
 
+            <!-- BACK SIDE -->
+            <div class="card-face card-face-back">
+              <div class="gilded-border"></div>
+              
+              <!-- Back Side Image -->
+              <img v-if="hasBackImage" :src="prayer.back_image" class="card-media-file" alt="Prayer Card Back" />
+              
+              <!-- Back Side Text Fallback -->
+              <div v-else class="card-text-fallback">
+                <div class="scroll-area">
+                  <div class="opening-verse">
+                    <em>"Ask and it shall be given to you; seek and you shall find;
+                    knock and the door shall be opened to you."</em>
+                    <span class="verse-ref">— Matthew 7:7</span>
+                  </div>
+                  
+                  <div class="prayer-body">
+                    <p
+                      v-for="(stanza, i) in stanzas"
+                      :key="i"
+                      class="stanza"
+                      :class="{ 'stanza-amen': stanza.toLowerCase() === 'amen.' }"
+                      v-html="stanza.replace(/\n/g, '<br/>')"
+                    ></p>
+                  </div>
+
+                  <footer class="prayer-footer">
+                    <div class="footer-cross">✝</div>
+                    <p class="attribution">{{ prayer.author_attribution }}</p>
+                    <p class="chapter-year">Chapter · 2027</p>
+                  </footer>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Controls below 3D Card -->
+        <div class="card-controls">
+          <button class="btn-flip" @click="toggleFlip">
+            <RefreshCw :size="18" />
+            <span>Flip Card</span>
+          </button>
+          
+          <div class="download-actions">
+            <a :href="prayer.front_image" download target="_blank" class="btn-download">
+              <Download :size="16" />
+              <span>Download Front Image</span>
+            </a>
+            <a v-if="hasBackImage" :href="prayer.back_image" download target="_blank" class="btn-download">
+              <Download :size="16" />
+              <span>Download Back Image</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Static Elegant Text Card (Fallback if no front image is uploaded) -->
+      <article class="prayer-card static-card" v-else-if="!loading && !error && prayer">
         <!-- Opening verse -->
         <div class="opening-verse">
           <em>"Ask and it shall be given to you; seek and you shall find;
@@ -76,14 +162,12 @@ const stanzas = computed(() => {
           ></p>
         </div>
 
-
         <!-- Attribution / Footer -->
         <footer class="prayer-footer">
           <div class="footer-cross">✝</div>
           <p class="attribution">{{ prayer.author_attribution }}</p>
           <p class="chapter-year">Chapter · 2027</p>
         </footer>
-
       </article>
 
       <!-- Loading state -->
@@ -97,6 +181,7 @@ const stanzas = computed(() => {
         <div class="error-icon">🕯️</div>
         <p>The prayer could not be loaded.<br/>Please try again shortly.</p>
       </div>
+
     </section>
 
     <!-- Rosary bead decoration row -->
@@ -167,8 +252,6 @@ const stanzas = computed(() => {
   gap: 1.5rem;
 }
 
-
-
 /* Hero text */
 .hero-text { position: relative; z-index: 1; }
 
@@ -236,15 +319,16 @@ const stanzas = computed(() => {
   line-height: 1;
 }
 
-/* ─── PRAYER CARD ─────────────────────────────────────────────── */
-.prayer-card-wrap {
+/* ─── PRAYER CONTENT SECTION ───────────────────────────── */
+.prayer-content-wrap {
   position: relative;
   z-index: 2;
-  max-width: 780px;
+  max-width: 840px;
   margin: 3rem auto 2rem;
   padding: 0 1.5rem;
 }
 
+/* Static elegant card & general prayer card styles */
 .prayer-card {
   background: rgba(255, 251, 242, 0.85);
   backdrop-filter: blur(24px) saturate(160%);
@@ -261,8 +345,7 @@ const stanzas = computed(() => {
   overflow: hidden;
 }
 
-/* Corner ornament */
-.prayer-card::before {
+.static-card::before {
   content: '✝';
   position: absolute;
   top: 1.5rem;
@@ -271,7 +354,7 @@ const stanzas = computed(() => {
   color: rgba(180, 130, 30, 0.25);
   font-family: serif;
 }
-.prayer-card::after {
+.static-card::after {
   content: '✝';
   position: absolute;
   bottom: 1.5rem;
@@ -279,6 +362,212 @@ const stanzas = computed(() => {
   font-size: 1.2rem;
   color: rgba(180, 130, 30, 0.25);
   font-family: serif;
+}
+
+/* 3D Flip Card Styles */
+.interactive-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  animation: scaleIn 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.flip-card-container {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 3 / 4.6;
+  perspective: 1800px;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.15), 
+    0 5px 15px rgba(180, 130, 30, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: #fbf8f3;
+}
+
+/* Gilded frame overlay for card face */
+.gilded-border {
+  position: absolute;
+  inset: 12px;
+  border: 2.5px double rgba(212, 175, 55, 0.45);
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.card-face-front {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+.card-face-back {
+  transform: rotateY(180deg);
+  background: #f8f5ee;
+}
+
+.card-media-file {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Hover flip hint */
+.card-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  background: rgba(10, 18, 30, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.flip-card-container:hover .card-hint {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+.hint-icon {
+  animation: spinSlow 4s linear infinite;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Backside Text content fallback */
+.card-text-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #faf7f0;
+}
+
+.scroll-area {
+  height: 100%;
+  overflow-y: auto;
+  padding: 2.5rem 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 160, 50, 0.4) transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Scroll area styling */
+.scroll-area::-webkit-scrollbar {
+  width: 5px;
+}
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background-color: rgba(200, 160, 50, 0.3);
+  border-radius: 20px;
+}
+
+/* Card Controls styling */
+.card-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.btn-flip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.9rem 2.2rem;
+  background: linear-gradient(135deg, #7a4e00 0%, #c8860a 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 10px 25px rgba(200, 160, 50, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.btn-flip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(200, 160, 50, 0.35);
+  background: linear-gradient(135deg, #8b5a00 0%, #d89614 100%);
+}
+
+.btn-flip svg {
+  transition: transform 0.6s ease;
+}
+
+.btn-flip:hover svg {
+  transform: rotate(180deg);
+}
+
+.download-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem 1.2rem;
+  background: rgba(200, 160, 50, 0.08);
+  color: #7a4e00;
+  border: 1px solid rgba(200, 160, 50, 0.25);
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.btn-download:hover {
+  background: rgba(200, 160, 50, 0.15);
+  border-color: rgba(200, 160, 50, 0.4);
+  transform: translateY(-1px);
 }
 
 /* Opening verse */
@@ -334,7 +623,6 @@ const stanzas = computed(() => {
   margin-top: 0.5rem;
 }
 
-
 /* Footer */
 .prayer-footer {
   text-align: center;
@@ -367,8 +655,6 @@ const stanzas = computed(() => {
   text-transform: uppercase;
   margin-top: 4px;
 }
-
-
 
 /* ─── LOADING / ERROR ─────────────────────────────────────────── */
 .state-block {
@@ -414,12 +700,12 @@ const stanzas = computed(() => {
   box-shadow: 0 2px 6px rgba(180,130,30,0.4);
 }
 
-
-
 /* ─── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .prayer-card { padding: 2rem 1.5rem; }
   .prayer-body { font-size: 0.97rem; }
+  .scroll-area { padding: 1.5rem 1rem; }
+  .flip-card-container { max-width: 320px; }
 }
 
 @keyframes scaleIn {

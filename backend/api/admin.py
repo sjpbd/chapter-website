@@ -45,6 +45,10 @@ class ChapterPrayerAdmin(admin.ModelAdmin):
             'fields': ('title', 'subtitle', 'is_active'),
             'description': 'The heading and tagline displayed prominently on the Prayer Card page.',
         }),
+        ('🖼️ Card Media (Optional)', {
+            'fields': ('front_image', 'back_image'),
+            'description': 'Upload scanned images for the front and back of the physical prayer card. If uploaded, the page will render an interactive 3D flipping card.',
+        }),
         ('✍️ Prayer Body', {
             'fields': ('body',),
             'description': (

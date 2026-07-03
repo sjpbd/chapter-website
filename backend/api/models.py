@@ -131,6 +131,18 @@ class ChapterPrayer(models.Model):
         default="St. Joseph Province — Bangladesh",
         help_text="Attribution line at the foot of the prayer"
     )
+    front_image = models.ImageField(
+        upload_to='prayer/',
+        blank=True,
+        null=True,
+        help_text="Upload front side image of the prayer card"
+    )
+    back_image = models.ImageField(
+        upload_to='prayer/',
+        blank=True,
+        null=True,
+        help_text="Upload back side image of the prayer card"
+    )
     is_active = models.BooleanField(
         default=True,
         help_text="Show this prayer on the website"
