@@ -273,6 +273,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 .nav-mobile-toggle {
   display: none;
   margin-left: auto; /* This pushes it to the far right */
+  flex-shrink: 0;
 }
 
 .burger-btn {
@@ -281,12 +282,12 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.7);
-  border: 1px solid rgba(0,0,0,0.06);
+  background: white;
+  border: 1.5px solid rgba(0, 106, 220, 0.15);
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0, 106, 220, 0.05);
 }
 
 .burger-btn:hover {
@@ -312,7 +313,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   position: absolute;
   height: 2.5px;
   width: 100%;
-  background: var(--text-main);
+  background: #0f172a;
   border-radius: 9px;
   opacity: 1;
   left: 0;
