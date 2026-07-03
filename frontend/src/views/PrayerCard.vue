@@ -40,7 +40,7 @@ const toggleFlip = () => {
 
     <!-- Ambient background elements -->
     <div class="ambient-orb orb-gold"></div>
-    <div class="ambient-orb orb-purple"></div>
+    <div class="ambient-orb orb-amber"></div>
     <div class="ambient-orb orb-blue"></div>
 
     <!-- Decorative crosses -->
@@ -197,10 +197,10 @@ const toggleFlip = () => {
   min-height: 100vh;
   padding-top: 84px; /* navbar height */
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(180, 130, 30, 0.18) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 50% at 10% 80%, rgba(99, 46, 155, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 60% at 90% 70%, rgba(0, 106, 220, 0.08) 0%, transparent 60%),
-    #f8f4ef;
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 175, 55, 0.15) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, rgba(200, 150, 30, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 60% at 85% 75%, rgba(0, 106, 220, 0.06) 0%, transparent 60%),
+    #faf7f0; /* Warmer premium ivory/parchment background */
   position: relative;
   overflow: hidden;
 }
@@ -210,22 +210,22 @@ const toggleFlip = () => {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(80px);
-  opacity: 0.45;
-  animation: orbFloat 12s ease-in-out infinite;
+  filter: blur(100px);
+  opacity: 0.35;
+  animation: orbFloat 14s ease-in-out infinite;
 }
-.orb-gold   { width: 420px; height: 420px; top: -80px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, #f5c842, #e8920a); }
-.orb-purple { width: 280px; height: 280px; bottom: 20%; left: -80px; background: radial-gradient(circle, #9b59b6, #6c3483); animation-delay: -4s; }
-.orb-blue   { width: 220px; height: 220px; bottom: 10%; right: -60px; background: radial-gradient(circle, #3498db, #1a5276); animation-delay: -8s; }
+.orb-gold   { width: 460px; height: 460px; top: -100px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(245, 200, 66, 0.35) 0%, rgba(200, 150, 30, 0.1) 70%, transparent 100%); }
+.orb-amber  { width: 320px; height: 320px; bottom: 20%; left: -60px; background: radial-gradient(circle, rgba(200, 150, 30, 0.22) 0%, rgba(139, 90, 0, 0.08) 70%, transparent 100%); animation-delay: -4s; }
+.orb-blue   { width: 280px; height: 280px; bottom: 10%; right: -60px; background: radial-gradient(circle, rgba(0, 120, 212, 0.18) 0%, rgba(0, 76, 153, 0.06) 70%, transparent 100%); animation-delay: -8s; }
 
 @keyframes orbFloat {
   0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(-30px); }
+  50%       { transform: translateX(-50%) translateY(-25px); }
 }
-.orb-purple { animation-name: orbFloatL; }
+.orb-amber  { animation-name: orbFloatL; }
 .orb-blue   { animation-name: orbFloatR; }
-@keyframes orbFloatL { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-@keyframes orbFloatR { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(20px); } }
+@keyframes orbFloatL { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+@keyframes orbFloatR { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(15px); } }
 
 /* ─── DECORATIVE CROSSES ─────────────────────────────────────── */
 .deco-cross {
