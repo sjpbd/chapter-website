@@ -151,13 +151,54 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   box-shadow: 0 6px 18px rgba(0,120,212,0.25);
   flex-shrink: 0;
   overflow: hidden;
-  transition: all 0.3s ease;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .logo-icon.has-logo {
   background: none;
   box-shadow: none;
   border-radius: 0;
+}
+
+/* Metallic Shine Sweep */
+.logo-icon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 30%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.3) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+  animation: logo-shine 6s ease-in-out infinite;
+}
+
+.logo:hover .logo-icon {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.logo:hover .logo-icon::after {
+  animation: logo-shine-hover 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes logo-shine {
+  0% { left: -150%; }
+  15% { left: 150%; }
+  100% { left: 150%; }
+}
+
+@keyframes logo-shine-hover {
+  0% { left: -150%; }
+  100% { left: 150%; }
 }
 
 .dynamic-logo {
