@@ -34,7 +34,7 @@ onMounted(() => {
 
 .main-content {
   flex: 1;
-  padding-top: 72px; /* height of fixed navbar */
+  padding-top: 84px; /* height of fixed navbar */
 }
 
 /* Page transitions */

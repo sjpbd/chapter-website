@@ -159,7 +159,7 @@ onUnmounted(() => clearInterval(timer))
 .hero-slider {
   position: relative;
   width: 100%;
-  height: calc(100vh - 72px);
+  height: calc(100vh - 84px);
   min-height: 520px;
   max-height: 900px;
   overflow: hidden;

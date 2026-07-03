@@ -110,7 +110,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
-  height: 72px;
+  height: 84px;
   background-color: transparent;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -144,7 +144,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 }
 
 .logo-icon {
-  width: 52px; height: 52px;
+  width: 64px; height: 64px;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;

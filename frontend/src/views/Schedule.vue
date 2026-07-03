@@ -193,7 +193,7 @@ function getMeta(cat) {
 /* ─── PAGE ───────────────────────────────────────────────── */
 .schedule-page {
   min-height: 100vh;
-  padding-top: 72px;
+  padding-top: 84px;
   background:
     radial-gradient(ellipse 70% 50% at 20% 0%, rgba(0,120,212,0.12) 0%, transparent 60%),
     radial-gradient(ellipse 60% 50% at 80% 80%, rgba(99,46,155,0.1) 0%, transparent 60%),

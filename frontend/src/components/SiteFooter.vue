@@ -81,7 +81,7 @@ const configStore = useConfigStore()
 }
 
 .f-logo-icon {
-  width: 48px; height: 48px;
+  width: 64px; height: 64px;
   border-radius: 10px;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   flex-shrink: 0;

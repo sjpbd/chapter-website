@@ -196,7 +196,7 @@ const toggleFlip = () => {
 /* ─── PAGE ──────────────────────────────────────────────────── */
 .prayer-page {
   min-height: 100vh;
-  padding-top: 72px; /* navbar height */
+  padding-top: 84px; /* navbar height */
   background:
     radial-gradient(ellipse 80% 60% at 50% 0%, rgba(180, 130, 30, 0.18) 0%, transparent 65%),
     radial-gradient(ellipse 60% 50% at 10% 80%, rgba(99, 46, 155, 0.12) 0%, transparent 60%),
