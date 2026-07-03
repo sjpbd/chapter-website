@@ -1,6 +1,6 @@
 <script setup>
-import { X, Download, Maximize2 } from 'lucide-vue-next'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { X, Download, Maximize2, Loader2 } from 'lucide-vue-next'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
   doc: { type: Object, required: true },
@@ -31,6 +31,10 @@ const isPdf = computed(() => {
   return props.doc?.file?.toLowerCase().endsWith('.pdf')
 })
 
+const viewType = ref('normal')
+const isLoadingFlipbook = ref(false)
+const flipbookContainerRef = ref(null)
+
 // For mobile and non-PDF files, Google Docs Viewer provides a much better "direct" experience
 const viewerUrl = computed(() => {
   if (!absoluteUrl.value) return ''
@@ -43,6 +47,64 @@ const viewerUrl = computed(() => {
   // Otherwise, use Google Docs Viewer for a consistent "inline" experience
   return `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl.value)}&embedded=true`
 })
+
+// Dynamic Script & CSS Loaders to avoid loading flipbook assets when not used
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${url}"]`)) {
+      resolve()
+      return
+    }
+    const script = document.createElement('script')
+    script.src = url
+    script.async = true
+    script.onload = () => resolve()
+    script.onerror = () => reject()
+    document.head.appendChild(script)
+  })
+}
+
+function loadCSS(url) {
+  if (document.querySelector(`link[href="${url}"]`)) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = url
+  document.head.appendChild(link)
+}
+
+const switchToFlipbook = async () => {
+  viewType.value = 'flipbook'
+  if (isLoadingFlipbook.value) return
+  
+  isLoadingFlipbook.value = true
+  try {
+    // 1. Load styles
+    loadCSS('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/css/dflip.min.css')
+    loadCSS('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/css/themify-icons.min.css')
+    
+    // 2. Load jQuery (required by DearFlip)
+    await loadScript('https://code.jquery.com/jquery-3.7.1.min.js')
+    
+    // 3. Load DearFlip JS
+    await loadScript('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/dflip.min.js')
+    
+    // 4. Wait for DOM update and initialize flipbook
+    await nextTick()
+    
+    if (window.jQuery && window.jQuery.fn.flipBook && flipbookContainerRef.value) {
+      flipbookContainerRef.value.innerHTML = ''
+      window.jQuery(flipbookContainerRef.value).flipBook(absoluteUrl.value, {
+        webgl: true,
+        height: '100%',
+        duration: 800
+      })
+    }
+  } catch (error) {
+    console.error('Failed to load DearFlip flipbook library:', error)
+  } finally {
+    isLoadingFlipbook.value = false
+  }
+}
 
 // Prevent background scrolling when modal is open
 onMounted(() => {
@@ -64,6 +126,23 @@ onUnmounted(() => {
               <h3>{{ doc.title }}</h3>
               <span class="file-tag">{{ doc.category_name }}</span>
             </div>
+
+            <!-- View Mode Selector -->
+            <div class="view-mode-selector" v-if="isPdf">
+              <button 
+                :class="['vms-btn', { active: viewType === 'normal' }]" 
+                @click="viewType = 'normal'"
+              >
+                Standard View
+              </button>
+              <button 
+                :class="['vms-btn', { active: viewType === 'flipbook' }]" 
+                @click="switchToFlipbook"
+              >
+                Flipbook View 📖
+              </button>
+            </div>
+
             <div class="modal-actions">
               <a :href="absoluteUrl" target="_blank" title="Open in new tab" class="icon-btn">
                 <Maximize2 :size="18" />
@@ -78,8 +157,26 @@ onUnmounted(() => {
           </header>
           
           <div class="modal-body">
-            <!-- Native browser PDF rendering using object/iframe -->
-            <iframe :src="viewerUrl" class="pdf-frame" frameborder="0"></iframe>
+            <!-- Standard PDF Viewer (Iframe) -->
+            <iframe 
+              v-if="viewType === 'normal'" 
+              :src="viewerUrl" 
+              class="pdf-frame" 
+              frameborder="0"
+            ></iframe>
+
+            <!-- 3D Flipbook Viewer -->
+            <div 
+              v-else 
+              ref="flipbookContainerRef" 
+              class="flipbook-container"
+            >
+              <!-- Loading spinner -->
+              <div class="flipbook-loader" v-if="isLoadingFlipbook">
+                <Loader2 class="animate-spin" :size="36" />
+                <p>Preparing 3D Flipbook...</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -121,12 +218,15 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   background: #fdfdfd;
+  gap: 1rem;
 }
 
 .modal-title {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  flex: 1;
 }
 
 .modal-title h3 {
@@ -137,7 +237,6 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 400px;
 }
 
 .file-tag {
@@ -148,11 +247,41 @@ onUnmounted(() => {
   padding: 3px 8px;
   border-radius: 20px;
   text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* View Mode Selector styling */
+.view-mode-selector {
+  display: flex;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+}
+
+.vms-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vms-btn.active {
+  background: white;
+  color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 106, 220, 0.12);
 }
 
 .modal-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .icon-btn {
@@ -191,7 +320,32 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   border: none;
-  background: #525659; /* Default PDF viewer background */
+  background: #525659;
+}
+
+/* 3D Flipbook Viewer Container */
+.flipbook-container {
+  width: 100%;
+  height: 100%;
+  background: #333333;
+  position: relative;
+}
+
+.flipbook-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.flipbook-loader svg {
+  color: var(--primary-light);
 }
 
 /* Transitions */
@@ -219,7 +373,21 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .modal-overlay { padding: 1rem; }
   .modal-container { height: 95vh; }
-  .modal-title h3 { max-width: 200px; }
+  .modal-header {
+    flex-wrap: wrap;
+    padding: 0.8rem 1rem;
+  }
+  .modal-title {
+    width: auto;
+    flex: 1;
+  }
+  .modal-title h3 { max-width: 180px; }
   .file-tag { display: none; }
+  .view-mode-selector {
+    order: 3;
+    width: 100%;
+    margin-top: 0.5rem;
+    justify-content: center;
+  }
 }
 </style>
