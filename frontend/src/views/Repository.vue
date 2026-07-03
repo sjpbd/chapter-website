@@ -190,6 +190,11 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
 </template>
 
 <style scoped>
+.repository-page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 /* Hero */
 .repo-hero {
   position: relative;
@@ -520,6 +525,20 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   .cat-item.active .count {
     background: rgba(255, 255, 255, 0.25);
     color: white;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem !important;
+  }
+  .repo-hero {
+    padding: 7rem 1rem 5.5rem;
+  }
+  .toolbar {
+    margin: -1.5rem 1rem 2rem;
+    border-radius: 24px;
+    padding: 0.5rem;
   }
 }
 
