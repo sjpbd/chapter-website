@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useConfigStore } from './store/configStore'
 import Navbar from './components/Navbar.vue'
 import SiteFooter from './components/SiteFooter.vue'
@@ -8,6 +8,7 @@ import { Compass, Home, FolderOpen, HandHeart, CalendarDays, X } from 'lucide-vu
 
 const configStore = useConfigStore()
 const isFabMenuOpen = ref(false)
+const route = useRoute()
 
 onMounted(() => {
   configStore.fetchConfig()
@@ -27,7 +28,7 @@ onMounted(() => {
     <SiteFooter />
 
     <!-- Floating Action Menu (Mobile FAB) -->
-    <div class="fab-container" :class="{ active: isFabMenuOpen }">
+    <div v-if="route.path !== '/repository'" class="fab-container" :class="{ active: isFabMenuOpen }">
       <!-- Backdrop overlay -->
       <div class="fab-backdrop" @click="isFabMenuOpen = false"></div>
 

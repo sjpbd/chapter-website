@@ -18,6 +18,17 @@ let debounceTimer      = null
 
 const selectedDoc = ref(null)
 const isModalOpen = ref(false)
+const isFilterDrawerOpen = ref(false)
+
+const selectCategoryAndClose = (catId) => {
+  selectedCategory.value = catId
+  isFilterDrawerOpen.value = false
+}
+
+const getCategoryName = (id) => {
+  const cat = store.categories.find(c => c.id === id)
+  return cat ? cat.name : ''
+}
 
 const openPreview = (doc) => {
   selectedDoc.value = doc
@@ -139,6 +150,15 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
 
       <!-- Documents Area -->
       <main class="docs-area">
+        <!-- Active Filter Summary (Mobile only) -->
+        <div class="active-filter-summary" v-if="selectedCategory !== null && store.categories.length">
+          <span class="afs-label">Active Filter:</span>
+          <div class="afs-pill">
+            <span>{{ getCategoryName(selectedCategory) }}</span>
+            <button class="afs-clear" @click="selectedCategory = null"><X :size="14" /></button>
+          </div>
+        </div>
+
         <!-- Loading -->
         <div v-if="store.loading" :class="['docs-grid', viewMode]">
           <div v-for="n in 6" :key="n" :class="['skeleton-card glass', { 'list-mode': viewMode === 'list' }]">
@@ -186,6 +206,46 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
       :is-open="isModalOpen" 
       @close="closePreview" 
     />
+
+    <!-- Floating Filter Button (Mobile only) -->
+    <button class="filter-fab-btn" @click="isFilterDrawerOpen = true" aria-label="Open Filter Menu">
+      <SlidersHorizontal :size="20" />
+      <span>Filters</span>
+      <span class="active-dot" v-if="selectedCategory !== null"></span>
+    </button>
+
+    <!-- Bottom Sheet Filter Drawer (Mobile only) -->
+    <div class="filter-drawer-container" :class="{ active: isFilterDrawerOpen }">
+      <div class="filter-drawer-backdrop" @click="isFilterDrawerOpen = false"></div>
+      <div class="filter-drawer-content">
+        <div class="drawer-drag-handle"></div>
+        <header class="drawer-header">
+          <h3>Filter by Category</h3>
+          <button class="drawer-close-btn" @click="isFilterDrawerOpen = false"><X :size="20" /></button>
+        </header>
+        <div class="drawer-body">
+          <ul class="drawer-cat-list">
+            <li
+              :class="['drawer-cat-item', { active: selectedCategory === null }]"
+              @click="selectCategoryAndClose(null)"
+            >
+              <FolderOpen :size="18" />
+              <span class="cat-name">All Documents</span>
+              <span class="drawer-count">{{ store.documents.length }}</span>
+            </li>
+            <li
+              v-for="cat in store.categories"
+              :key="cat.id"
+              :class="['drawer-cat-item', { active: selectedCategory === cat.id }]"
+              @click="selectCategoryAndClose(cat.id)"
+            >
+              <FolderOpen :size="18" />
+              <span class="cat-name">{{ cat.name }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -461,83 +521,7 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   }
   
   .sidebar {
-    position: sticky;
-    top: 84px; /* Sticks right below the 84px header navbar */
-    z-index: 90;
-    padding: 0.8rem 1rem;
-    margin: 0 -1.2rem; /* Full edge-to-edge bleed for swiping */
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-top: 1px solid rgba(0, 106, 220, 0.08);
-    border-bottom: 1px solid rgba(0, 106, 220, 0.08);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-  }
-  
-  .sidebar-header {
-    display: none; /* Hide filter header on mobile to conserve space */
-  }
-  
-  .cat-list {
-    flex-direction: row;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding: 0.2rem 0.5rem;
-    gap: 0.5rem;
-  }
-  
-  .cat-list::-webkit-scrollbar {
-    display: none; /* Hide scrollbars for native swiping look */
-  }
-  
-  .cat-item {
-    padding: 10px 18px; /* Slightly taller and wider for easier finger tapping */
-    border-radius: 30px; /* Pill capsule look */
-    border: 1px solid rgba(0, 106, 220, 0.08); /* Soft blue border to make them look like buttons */
-    background: rgba(255, 255, 255, 0.95); /* High-contrast white background */
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 600;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  
-  .cat-item:hover {
-    transform: none; /* Disable desktop translation on hover */
-    background: rgba(0, 120, 212, 0.05);
-    border-color: rgba(0, 106, 220, 0.15);
-  }
-  
-  .cat-item.active {
-    background: var(--primary-color) !important;
-    background-image: none !important; /* Cancel desktop gradient */
-    border-color: var(--primary-color) !important;
-    color: white !important;
-    box-shadow: 0 4px 14px rgba(0, 106, 220, 0.25) !important;
-    font-weight: 700;
-  }
-  
-  .cat-item .count {
-    margin-left: 6px;
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--text-secondary);
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    transition: all 0.25s ease;
-  }
-  
-  .cat-item.active .count {
-    background: rgba(255, 255, 255, 0.25) !important;
-    color: white !important;
+    display: none;
   }
 }
 
@@ -674,5 +658,226 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Floating Filter FAB (Mobile only) */
+.filter-fab-btn {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 24px rgba(0, 106, 220, 0.4);
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.filter-fab-btn:active {
+  transform: scale(0.95);
+}
+
+.filter-fab-btn .active-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-orange);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-orange);
+}
+
+@media (max-width: 900px) {
+  .filter-fab-btn {
+    display: flex;
+  }
+}
+
+/* Bottom Sheet Filter Drawer */
+.filter-drawer-container {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.filter-drawer-container.active {
+  pointer-events: auto;
+}
+
+.filter-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.filter-drawer-container.active .filter-drawer-backdrop {
+  opacity: 1;
+}
+
+.filter-drawer-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 28px 28px 0 0;
+  padding: 1.5rem 1.5rem 2.5rem;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.filter-drawer-container.active .filter-drawer-content {
+  transform: translateY(0);
+}
+
+.drawer-drag-handle {
+  width: 40px;
+  height: 5px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+  margin: -0.5rem auto 1rem;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.drawer-header h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.drawer-close-btn {
+  background: rgba(0,0,0,0.05);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawer-body {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.drawer-cat-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.drawer-cat-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.drawer-cat-item svg {
+  color: var(--primary-color);
+  transition: transform 0.2s ease;
+}
+
+.drawer-cat-item.active {
+  background: rgba(0, 106, 220, 0.08) !important;
+  color: var(--primary-color) !important;
+  border-color: rgba(0, 106, 220, 0.15) !important;
+  font-weight: 700;
+}
+
+.drawer-cat-item:active {
+  transform: scale(0.98);
+}
+
+.drawer-count {
+  margin-left: auto;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.05);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.drawer-cat-item.active .drawer-count {
+  background: rgba(0, 106, 220, 0.15);
+  color: var(--primary-color);
+}
+
+/* Active Filter Summary Pill */
+.active-filter-summary {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .active-filter-summary {
+    display: flex;
+  }
+}
+
+.afs-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.afs-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(0, 106, 220, 0.08);
+  border: 1px solid rgba(0, 106, 220, 0.15);
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 30px;
+}
+
+.afs-clear {
+  background: none;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.afs-clear:hover {
+  background: rgba(0, 106, 220, 0.15);
 }
 </style>
