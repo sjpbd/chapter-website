@@ -140,9 +140,22 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
       <!-- Documents Area -->
       <main class="docs-area">
         <!-- Loading -->
-        <div v-if="store.loading" class="state-box">
-          <Loader2 :size="52" class="animate-spin" />
-          <p>Loading documents…</p>
+        <div v-if="store.loading" :class="['docs-grid', viewMode]">
+          <div v-for="n in 6" :key="n" :class="['skeleton-card glass', { 'list-mode': viewMode === 'list' }]">
+            <div class="skeleton-badge shimmer"></div>
+            <div class="skeleton-info">
+              <div class="skeleton-line tag shimmer"></div>
+              <div class="skeleton-line title shimmer"></div>
+              <div class="skeleton-line desc shimmer" v-if="viewMode === 'grid'"></div>
+            </div>
+            <div class="skeleton-footer">
+              <div class="skeleton-line meta shimmer"></div>
+              <div class="skeleton-actions">
+                <div class="skeleton-btn shimmer"></div>
+                <div class="skeleton-btn shimmer"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Empty -->
@@ -181,7 +194,7 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
 .repo-hero {
   position: relative;
   overflow: hidden;
-  padding: 7rem 2rem 6rem;
+  padding: 8rem 2rem 6.5rem;
   background: var(--bg-dark);
 }
 
@@ -189,37 +202,45 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, #1e1b4b 100%);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #0f172a 100%);
   z-index: 0;
 }
 
 .repo-hero .container { position: relative; z-index: 2; }
-.repo-hero .section-eyebrow { color: var(--accent-teal); letter-spacing: 0.2em; }
-.repo-hero .section-title   { color: white; font-size: clamp(2.5rem, 5vw, 3.8rem); margin-bottom: 1.2rem; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-.repo-hero .section-subtitle { color: rgba(255,255,255,0.8); max-width: 600px; font-size: 1.1rem; }
+.repo-hero .section-eyebrow { color: var(--accent-teal); letter-spacing: 0.25em; text-transform: uppercase; font-weight: 700; font-size: 0.85rem; }
+.repo-hero .section-title   { color: white; font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 800; margin-bottom: 1.2rem; text-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.repo-hero .section-subtitle { color: rgba(255,255,255,0.85); max-width: 600px; font-size: 1.1rem; line-height: 1.6; }
 
 /* Aurora Shapes */
 .hero-shapes { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
 .shape {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
-  animation: float 10s ease-in-out infinite alternate;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: float 16s ease-in-out infinite alternate;
 }
-.s1 { background: var(--primary-color); width: 500px; height: 500px; top: -150px; right: -100px; animation-delay: 0s; }
-.s2 { background: var(--secondary-color); width: 400px; height: 400px; bottom: -100px; right: 25%; animation-delay: -3s; }
-.s3 { background: var(--accent-teal); width: 300px; height: 300px; top: 20%; right: 45%; animation-delay: -5s; opacity: 0.4; }
+.s1 { background: var(--primary-color); width: 600px; height: 600px; top: -200px; right: -150px; animation-name: floatS1; }
+.s2 { background: var(--secondary-color); width: 500px; height: 500px; bottom: -150px; right: 20%; animation-name: floatS2; animation-delay: -4s; }
+.s3 { background: var(--accent-teal); width: 350px; height: 350px; top: 15%; right: 40%; animation-name: floatS3; animation-delay: -8s; opacity: 0.3; }
 
-@keyframes float {
+@keyframes floatS1 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(-60px, 40px) scale(1.1) rotate(45deg); }
+}
+@keyframes floatS2 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { transform: translate(40px, -50px) scale(1.15) rotate(-60deg); }
+}
+@keyframes floatS3 {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-30px, 30px) scale(1.1); }
+  100% { transform: translate(-30px, 30px) scale(1.2); }
 }
 
 /* Toolbar */
 .toolbar {
   position: sticky;
-  top: 90px;
+  top: 100px;
   z-index: 100;
   max-width: 900px;
   margin: -2.2rem auto 3rem;
@@ -314,7 +335,12 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
   position: sticky;
-  top: 140px;
+  top: 160px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
 }
 
 .sidebar-header {
@@ -336,9 +362,13 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   color: var(--primary-color);
   background: none;
   text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+.clear-all:hover {
+  opacity: 0.8;
 }
 
-.cat-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.cat-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
 
 .cat-item {
   display: flex;
@@ -350,13 +380,14 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--transition-smooth);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border-left: 3px solid transparent;
 }
 
 .cat-item:hover {
   background: rgba(0,120,212,0.06);
   color: var(--primary-color);
+  transform: translateX(4px);
 }
 
 .cat-item.active {
@@ -364,6 +395,7 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   color: var(--primary-color);
   font-weight: 700;
   border-left-color: var(--primary-color);
+  box-shadow: inset 1px 0 0 rgba(0, 120, 212, 0.1);
 }
 
 .cat-item .count {
@@ -373,6 +405,7 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   padding: 2px 10px;
   border-radius: 20px;
   font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .cat-item.active .count {
@@ -422,5 +455,122 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
 
 @media (max-width: 560px) {
   .view-toggle { display: none; }
+}
+
+/* Skeleton Loader */
+.skeleton-card {
+  padding: 1.6rem;
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  height: 240px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.skeleton-card.list-mode {
+  flex-direction: row;
+  align-items: center;
+  height: auto;
+  padding: 1.2rem 1.6rem;
+}
+
+.skeleton-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.skeleton-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-line {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.skeleton-line.tag { width: 30%; height: 10px; }
+.skeleton-line.title { width: 85%; height: 16px; margin-top: 4px; }
+.skeleton-line.desc { width: 60%; height: 12px; margin-top: 8px; }
+
+.skeleton-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto;
+}
+
+.skeleton-card.list-mode .skeleton-footer {
+  padding-top: 0;
+  border-top: none;
+  margin-top: 0;
+  gap: 12px;
+}
+
+.skeleton-line.meta { width: 80px; height: 10px; }
+
+.skeleton-actions { display: flex; gap: 6px; }
+.skeleton-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Shimmer Animation */
+.shimmer {
+  position: relative;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Animation classes */
+.state-box.empty {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
