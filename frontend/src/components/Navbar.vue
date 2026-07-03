@@ -11,15 +11,13 @@ const isScrolled = ref(false)
 const isMenuOpen = ref(false)
 const route = useRoute()
 
-const isHomePage = computed(() => route.path === '/')
-
 const handleScroll = () => { isScrolled.value = window.scrollY > 30 }
 onMounted(() => window.addEventListener('scroll', handleScroll))
 onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 </script>
 
 <template>
-  <nav :class="['navbar', { scrolled: isScrolled, 'home-transparent': isHomePage && !isScrolled }]">
+  <nav :class="['navbar', { scrolled: isScrolled }]">
     <div class="nav-inner">
       <!-- Logo -->
       <RouterLink to="/" class="logo">
@@ -523,68 +521,5 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   .logo { margin-right: 0; }
 }
 
-/* Transparent overlay style for home page header */
-.navbar.home-transparent {
-  background-color: transparent !important;
-  border-bottom-color: transparent !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
 
-.navbar.home-transparent .brand {
-  color: white !important;
-}
-
-.navbar.home-transparent .tagline {
-  color: rgba(255, 255, 255, 0.75) !important;
-}
-
-.navbar.home-transparent .nav-item {
-  color: rgba(255, 255, 255, 0.85) !important;
-}
-
-.navbar.home-transparent .nav-item:not(.nav-prayer):not(.nav-schedule):hover {
-  color: white !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
-.navbar.home-transparent .nav-item:not(.nav-prayer):not(.nav-schedule).router-link-active {
-  color: white !important;
-  background: rgba(255, 255, 255, 0.15) !important;
-}
-
-.navbar.home-transparent .nav-item:not(.nav-prayer):not(.nav-schedule)::after {
-  background-color: white !important;
-}
-
-.navbar.home-transparent .nav-prayer {
-  color: #f59e0b !important;
-  background: rgba(245, 158, 11, 0.1) !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
-}
-.navbar.home-transparent .nav-prayer:hover {
-  color: white !important;
-  background: linear-gradient(135deg, #b4821e 0%, #d4af37 100%) !important;
-  border-color: #b4821e !important;
-}
-
-.navbar.home-transparent .nav-schedule {
-  color: #38bdf8 !important;
-  background: rgba(56, 189, 248, 0.1) !important;
-  border-color: rgba(56, 189, 248, 0.35) !important;
-}
-.navbar.home-transparent .nav-schedule:hover {
-  color: white !important;
-  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%) !important;
-  border-color: #0284c7 !important;
-}
-
-.navbar.home-transparent .burger-btn {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-.navbar.home-transparent .line {
-  background: white !important;
-}
 </style>

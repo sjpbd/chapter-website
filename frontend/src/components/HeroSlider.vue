@@ -159,7 +159,7 @@ onUnmounted(() => clearInterval(timer))
 .hero-slider {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 84px);
   min-height: 520px;
   max-height: 900px;
   overflow: hidden;
@@ -232,7 +232,7 @@ onUnmounted(() => clearInterval(timer))
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 84px 4rem 0; /* Add top padding to offset the transparent overlay navbar */
+  padding: 0 4rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -469,13 +469,13 @@ onUnmounted(() => clearInterval(timer))
 }
 
 @media (max-width: 900px) {
-  .slide-content-wrapper { padding: 84px 2rem 0; }
+  .slide-content-wrapper { padding: 0 2rem; }
   .slide-card { padding: 2.5rem; }
 }
 
 @media (max-width: 768px) {
   .slide-card { padding: 2rem 1.5rem; border-radius: 16px; margin: 0 1rem; }
   .arrow { display: none; }
-  .slide-content-wrapper { padding: 84px 1rem 0; }
+  .slide-content-wrapper { padding: 0 1rem; }
 }
 </style>
