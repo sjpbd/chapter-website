@@ -449,8 +449,78 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
 .state-box h2 { font-size: 1.8rem; color: var(--text-main); }
 
 @media (max-width: 900px) {
-  .repo-layout { grid-template-columns: 1fr; }
-  .sidebar { position: static; }
+  .repo-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding-top: 1rem;
+  }
+  
+  .sidebar {
+    position: sticky;
+    top: 84px; /* Sticks right below the 84px header navbar */
+    z-index: 90;
+    padding: 0.8rem 1rem;
+    margin: 0 -1.2rem; /* Full edge-to-edge bleed for swiping */
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid rgba(0, 106, 220, 0.08);
+    border-bottom: 1px solid rgba(0, 106, 220, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  }
+  
+  .sidebar-header {
+    display: none; /* Hide filter header on mobile to conserve space */
+  }
+  
+  .cat-list {
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.2rem 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .cat-list::-webkit-scrollbar {
+    display: none; /* Hide scrollbars for native swiping look */
+  }
+  
+  .cat-item {
+    padding: 8px 16px;
+    border-radius: 30px; /* Pill capsule look */
+    border-left: none;
+    background: rgba(0, 0, 0, 0.03);
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+  }
+  
+  .cat-item:hover {
+    transform: none; /* Disable desktop translation on hover */
+    background: rgba(0, 120, 212, 0.06);
+  }
+  
+  .cat-item.active {
+    background: var(--primary-color);
+    color: white;
+    border-left-color: transparent;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+  }
+  
+  .cat-item .count {
+    margin-left: 6px;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+  }
+  
+  .cat-item.active .count {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+  }
 }
 
 @media (max-width: 560px) {
