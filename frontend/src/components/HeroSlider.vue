@@ -108,18 +108,18 @@ onUnmounted(() => clearInterval(timer))
         ></div>
 
         <!-- Slide content with staggered animations -->
-        <div class="slide-content-wrapper">
+        <div class="slide-content-wrapper" v-if="slide.title || slide.subtitle || slide.link">
           <div class="slide-card glass">
-            <p class="slide-eyebrow">St. Joseph Province · Official</p>
-            <h1 class="slide-title">
+            <p class="slide-eyebrow" v-if="slide.title || slide.subtitle">St. Joseph Province · Official</p>
+            <h1 class="slide-title" v-if="slide.title">
               <span class="gradient-text" :style="{ '--accent-color': slide.accent || '#0078d4' }">
                 {{ slide.title }}
               </span>
             </h1>
-            <p class="slide-subtitle">{{ slide.subtitle }}</p>
-            <div class="slide-actions">
+            <p class="slide-subtitle" v-if="slide.subtitle">{{ slide.subtitle }}</p>
+            <div class="slide-actions" v-if="slide.link">
               <RouterLink 
-                :to="slide.link || '/repository'" 
+                :to="slide.link" 
                 class="btn-hero-primary"
                 :style="{ '--accent-color': slide.accent || '#0078d4' }"
               >

@@ -30,7 +30,7 @@ class ChapterDocument(models.Model):
         return self.title
 
 class HomeSlider(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, blank=True, default='')
     subtitle = models.TextField(blank=True)
     image = models.ImageField(upload_to='sliders/', blank=True, null=True, help_text="Upload an image file (used as slide background or video thumbnail/poster)")
     video = models.FileField(upload_to='sliders/', blank=True, null=True, help_text="Upload a video file (mp4, webm) instead of or in addition to an image")
