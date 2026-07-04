@@ -102,6 +102,8 @@ const initFlipbook = async () => {
     window.DFLIP.defaults.pdfjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js'
     window.DFLIP.defaults.pdfjsWorkerSrc = workerBlobUrl
     window.DFLIP.defaults.threejsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js'
+    window.DFLIP.defaults.mockupjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
+    window.DFLIP.defaults.mockupSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
     window.DFLIP.defaults.soundFile = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
 
     window.DEARFLIP = window.DEARFLIP || {}
@@ -109,6 +111,8 @@ const initFlipbook = async () => {
     window.DEARFLIP.defaults.pdfjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js'
     window.DEARFLIP.defaults.pdfjsWorkerSrc = workerBlobUrl
     window.DEARFLIP.defaults.threejsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js'
+    window.DEARFLIP.defaults.mockupjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
+    window.DEARFLIP.defaults.mockupSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
     window.DEARFLIP.defaults.soundFile = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
 
     // 4. Load DearFlip JS
@@ -128,6 +132,8 @@ const initFlipbook = async () => {
         pdfjsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js',
         pdfjsWorkerSrc: workerBlobUrl,
         threejsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js',
+        mockupjsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js',
+        mockupSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js',
         soundFile: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
       })
       
