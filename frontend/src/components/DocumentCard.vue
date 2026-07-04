@@ -1,12 +1,12 @@
 <script setup>
-import { FileText, Download, Calendar, ExternalLink, Eye } from 'lucide-vue-next'
+import { FileText, Download, Calendar, ExternalLink, Eye, BookOpen } from 'lucide-vue-next'
 
 const props = defineProps({
   doc:      { type: Object, required: true },
   listMode: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['preview'])
+const emit = defineEmits(['preview', 'flipbook'])
 
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
@@ -38,6 +38,14 @@ const extColor = (e) => ({
         <span>{{ formatDate(doc.uploaded_at) }}</span>
       </div>
       <div class="actions">
+        <button 
+          v-if="ext(doc.file) === 'PDF'" 
+          @click.prevent="emit('flipbook', doc)" 
+          class="action-btn fb" 
+          title="Flipbook View"
+        >
+          <BookOpen :size="17" />
+        </button>
         <button @click.prevent="emit('preview', doc)" class="action-btn" title="Preview">
           <Eye :size="17" />
         </button>
@@ -166,5 +174,6 @@ const extColor = (e) => ({
 }
 
 .action-btn:hover       { background: var(--primary-color); color: white; }
+.action-btn.fb:hover    { background: #5c2d91; }
 .action-btn.dl:hover    { background: #107c10; }
 </style>

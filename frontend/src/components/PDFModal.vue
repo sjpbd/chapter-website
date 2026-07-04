@@ -31,9 +31,6 @@ const isPdf = computed(() => {
   return props.doc?.file?.toLowerCase().endsWith('.pdf')
 })
 
-const viewType = ref('normal')
-const isLoadingFlipbook = ref(false)
-const flipbookContainerRef = ref(null)
 const isLinkCopied = ref(false)
 
 const copyShareLink = async () => {
@@ -60,89 +57,6 @@ const viewerUrl = computed(() => {
   return `https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl.value)}&embedded=true`
 })
 
-// Dynamic Script & CSS Loaders to avoid loading flipbook assets when not used
-function loadScript(url) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${url}"]`)) {
-      resolve()
-      return
-    }
-    const script = document.createElement('script')
-    script.src = url
-    script.async = true
-    script.onload = () => resolve()
-    script.onerror = () => reject()
-    document.head.appendChild(script)
-  })
-}
-
-function loadCSS(url) {
-  if (document.querySelector(`link[href="${url}"]`)) return
-  const link = document.createElement('link')
-  link.rel = 'stylesheet'
-  link.href = url
-  document.head.appendChild(link)
-}
-
-const switchToFlipbook = async () => {
-  viewType.value = 'flipbook'
-  if (isLoadingFlipbook.value) return
-  
-  isLoadingFlipbook.value = true
-  try {
-    // 1. Load styles
-    loadCSS('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/css/dflip.min.css')
-    loadCSS('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/css/themify-icons.min.css')
-    
-    // 2. Load jQuery (required by DearFlip)
-    await loadScript('https://code.jquery.com/jquery-3.7.1.min.js')
-    
-    // Set global CDN paths for DearFlip dependencies before loading the main script
-    window.DFLIP = window.DFLIP || {}
-    window.DFLIP.defaults = window.DFLIP.defaults || {}
-    window.DFLIP.defaults.pdfjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js'
-    window.DFLIP.defaults.pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.worker.min.js'
-    window.DFLIP.defaults.threejsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js'
-    window.DFLIP.defaults.mockupjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
-    window.DFLIP.defaults.mockupSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
-    window.DFLIP.defaults.soundFile = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
-
-    window.DEARFLIP = window.DEARFLIP || {}
-    window.DEARFLIP.defaults = window.DEARFLIP.defaults || {}
-    window.DEARFLIP.defaults.pdfjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js'
-    window.DEARFLIP.defaults.pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.worker.min.js'
-    window.DEARFLIP.defaults.threejsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js'
-    window.DEARFLIP.defaults.mockupjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
-    window.DEARFLIP.defaults.mockupSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
-    window.DEARFLIP.defaults.soundFile = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
-
-    // 3. Load DearFlip JS
-    await loadScript('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/dflip.min.js')
-    
-    // 4. Wait for DOM update and initialize flipbook
-    await nextTick()
-    
-    if (window.jQuery && window.jQuery.fn.flipBook && flipbookContainerRef.value) {
-      flipbookContainerRef.value.innerHTML = ''
-      window.jQuery(flipbookContainerRef.value).flipBook(absoluteUrl.value, {
-        webgl: true,
-        height: '100%',
-        duration: 800,
-        pdfjsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js',
-        pdfjsWorkerSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.worker.min.js',
-        threejsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js',
-        mockupjsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js',
-        mockupSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js',
-        soundFile: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
-      })
-    }
-  } catch (error) {
-    console.error('Failed to load DearFlip flipbook library:', error)
-  } finally {
-    isLoadingFlipbook.value = false
-  }
-}
-
 // Prevent background scrolling when modal is open
 onMounted(() => {
   document.body.style.overflow = 'hidden'
@@ -162,22 +76,6 @@ onUnmounted(() => {
             <div class="modal-title">
               <h3>{{ doc.title }}</h3>
               <span class="file-tag">{{ doc.category_name }}</span>
-            </div>
-
-            <!-- View Mode Selector -->
-            <div class="view-mode-selector" v-if="isPdf">
-              <button 
-                :class="['vms-btn', { active: viewType === 'normal' }]" 
-                @click="viewType = 'normal'"
-              >
-                Standard View
-              </button>
-              <button 
-                :class="['vms-btn', { active: viewType === 'flipbook' }]" 
-                @click="switchToFlipbook"
-              >
-                Flipbook View 📖
-              </button>
             </div>
 
             <div class="modal-actions">
@@ -205,24 +103,10 @@ onUnmounted(() => {
           <div class="modal-body">
             <!-- Standard PDF Viewer (Iframe) -->
             <iframe 
-              v-if="viewType === 'normal'" 
               :src="viewerUrl" 
               class="pdf-frame" 
               frameborder="0"
             ></iframe>
-
-            <!-- 3D Flipbook Viewer -->
-            <div 
-              v-else 
-              ref="flipbookContainerRef" 
-              class="flipbook-container"
-            >
-              <!-- Loading spinner -->
-              <div class="flipbook-loader" v-if="isLoadingFlipbook">
-                <Loader2 class="animate-spin" :size="36" />
-                <p>Preparing 3D Flipbook...</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

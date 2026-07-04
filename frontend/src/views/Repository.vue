@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import GlobalSearch from '../components/GlobalSearch.vue'
 import DocumentCard from '../components/DocumentCard.vue'
 import PDFModal from '../components/PDFModal.vue'
+import FlipbookModal from '../components/FlipbookModal.vue'
 import { Search, SlidersHorizontal, Loader2, FolderOpen, LayoutGrid, List, X } from 'lucide-vue-next'
 
 const store    = useDocumentStore()
@@ -18,6 +19,8 @@ let debounceTimer      = null
 
 const selectedDoc = ref(null)
 const isModalOpen = ref(false)
+const selectedFlipbookDoc = ref(null)
+const isFlipbookOpen = ref(false)
 const isFilterDrawerOpen = ref(false)
 
 const selectCategoryAndClose = (catId) => {
@@ -44,6 +47,21 @@ const closePreview = () => {
   setTimeout(() => { selectedDoc.value = null }, 300) // Clear after animation finishes
 }
 
+const openFlipbook = (doc) => {
+  selectedFlipbookDoc.value = doc
+  isFlipbookOpen.value = true
+  router.replace({ query: { ...route.query, doc: doc.id, view: 'flipbook' } })
+}
+
+const closeFlipbook = () => {
+  isFlipbookOpen.value = false
+  const nextQuery = { ...route.query }
+  delete nextQuery.doc
+  delete nextQuery.view
+  router.replace({ query: nextQuery })
+  setTimeout(() => { selectedFlipbookDoc.value = null }, 300)
+}
+
 onMounted(() => {
   store.fetchCategories()
   loadDocuments()
@@ -66,9 +84,13 @@ const loadDocuments = async () => {
     const docId = parseInt(route.query.doc)
     const matchedDoc = store.documents.find(d => d.id === docId)
     if (matchedDoc) {
-      // Open preview without re-pushing state
-      selectedDoc.value = matchedDoc
-      isModalOpen.value = true
+      if (route.query.view === 'flipbook') {
+        selectedFlipbookDoc.value = matchedDoc
+        isFlipbookOpen.value = true
+      } else {
+        selectedDoc.value = matchedDoc
+        isModalOpen.value = true
+      }
     }
   }
 }
@@ -209,6 +231,7 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
             :doc="doc"
             :list-mode="viewMode === 'list'"
             @preview="openPreview"
+            @flipbook="openFlipbook"
           />
         </div>
       </main>
@@ -220,6 +243,14 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
       :doc="selectedDoc" 
       :is-open="isModalOpen" 
       @close="closePreview" 
+    />
+
+    <!-- Flipbook Preview Modal -->
+    <FlipbookModal
+      v-if="selectedFlipbookDoc"
+      :doc="selectedFlipbookDoc"
+      :is-open="isFlipbookOpen"
+      @close="closeFlipbook"
     />
 
     <!-- Floating Filter Button (Mobile only) -->
