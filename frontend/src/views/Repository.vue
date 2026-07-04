@@ -129,21 +129,23 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
     </header>
 
     <!-- Toolbar -->
-    <div class="toolbar glass">
-      <div class="container toolbar-inner">
-        <!-- Search -->
-        <div class="toolbar-search" style="flex: 1; display: flex; max-width: 400px;">
-          <GlobalSearch style="width: 100%; max-width: 100%;" />
-        </div>
+    <div class="container toolbar-container">
+      <div class="toolbar glass">
+        <div class="toolbar-inner">
+          <!-- Search -->
+          <div class="toolbar-search" style="flex: 1; display: flex; max-width: 400px;">
+            <GlobalSearch style="width: 100%; max-width: 100%;" />
+          </div>
 
-        <!-- View Toggle -->
-        <div class="view-toggle">
-          <button :class="['vt-btn', { active: viewMode === 'grid' }]" @click="viewMode = 'grid'" title="Grid View">
-            <LayoutGrid :size="18" />
-          </button>
-          <button :class="['vt-btn', { active: viewMode === 'list' }]" @click="viewMode = 'list'" title="List View">
-            <List :size="18" />
-          </button>
+          <!-- View Toggle -->
+          <div class="view-toggle">
+            <button :class="['vt-btn', { active: viewMode === 'grid' }]" @click="viewMode = 'grid'" title="Grid View">
+              <LayoutGrid :size="18" />
+            </button>
+            <button :class="['vt-btn', { active: viewMode === 'list' }]" @click="viewMode = 'list'" title="List View">
+              <List :size="18" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -333,62 +335,35 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
   100% { transform: translate(-30px, 30px) scale(1.2); }
 }
 
-/* Toolbar */
-.toolbar {
+/* Toolbar Container & Aligned Sticky Header */
+.toolbar-container {
   position: sticky;
-  top: 100px;
+  top: 84px; /* Aligns perfectly below the header */
   z-index: 100;
-  max-width: 900px;
-  margin: -2.2rem auto 3rem;
-  border-radius: 50px;
-  padding: 0.6rem 1rem;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.4) inset;
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
-  background: rgba(255,255,255,0.85);
+  margin-top: -2rem;
+  margin-bottom: 2.5rem;
+}
+
+.toolbar {
+  border-radius: 20px;
+  padding: 0.6rem 1.5rem;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .toolbar-inner {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
 .toolbar-search {
   flex: 1;
   position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.toolbar-search input {
-  width: 100%;
-  padding: 12px 42px;
-  border: none;
-  border-radius: 50px;
-  font-family: inherit;
-  font-size: 0.95rem;
-  background: transparent;
-  color: var(--text-main);
-  transition: var(--transition-smooth);
-}
-
-.toolbar-search input:focus {
-  outline: none;
-}
-
-.ts-icon {
-  position: absolute;
-  left: 15px;
-  color: var(--text-secondary);
-  pointer-events: none;
-}
-
-.clear-search {
-  position: absolute;
-  right: 14px;
-  background: none;
-  color: var(--text-secondary);
   display: flex;
   align-items: center;
 }

@@ -42,10 +42,11 @@ const extColor = (e) => ({
           v-if="ext(doc.file) === 'PDF'" 
           :source="doc.file" 
           class="action-btn fb _df_button" 
-          title="Flipbook View"
+          title="Open in 3D Flipbook"
           style="cursor: pointer;"
         >
-          <BookOpen :size="17" />
+          <BookOpen :size="15" />
+          <span class="btn-text">Flipbook</span>
         </div>
         <button @click.prevent="emit('preview', doc)" class="action-btn" title="Preview">
           <Eye :size="17" />
@@ -109,19 +110,23 @@ const extColor = (e) => ({
 
 /* Info */
 .cat-tag {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--primary-color);
-  margin-bottom: 4px;
+  background: rgba(0, 106, 220, 0.08);
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 8px;
 }
 
 .doc-title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-main);
-  line-height: 1.35;
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -163,7 +168,7 @@ const extColor = (e) => ({
   color: var(--text-light);
 }
 
-.actions { display: flex; gap: 6px; }
+.actions { display: flex; gap: 6px; align-items: center; }
 
 .action-btn {
   width: 36px; height: 36px;
@@ -175,6 +180,34 @@ const extColor = (e) => ({
 }
 
 .action-btn:hover       { background: var(--primary-color); color: white; }
-.action-btn.fb:hover    { background: #5c2d91; }
 .action-btn.dl:hover    { background: #107c10; }
+
+/* Premium Flipbook Button Styling (with !important to override DearFlip defaults) */
+.action-btn.fb {
+  width: auto !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  gap: 6px !important;
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+  color: white !important;
+  border-radius: 9px !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(99, 46, 155, 0.25) !important;
+  text-shadow: none !important;
+}
+
+.action-btn.fb:hover {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-light) 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(99, 46, 155, 0.38) !important;
+}
+
+.action-btn.fb .btn-text {
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: 0.02em !important;
+  display: inline-block !important;
+}
 </style>
