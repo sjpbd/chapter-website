@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useDocumentStore } from '../store/documentStore'
 import { useRoute, useRouter } from 'vue-router'
 import GlobalSearch from '../components/GlobalSearch.vue'
 import DocumentCard from '../components/DocumentCard.vue'
 import PDFModal from '../components/PDFModal.vue'
-import FlipbookModal from '../components/FlipbookModal.vue'
 import { Search, SlidersHorizontal, Loader2, FolderOpen, LayoutGrid, List, X } from 'lucide-vue-next'
 
 const store    = useDocumentStore()
@@ -19,8 +18,6 @@ let debounceTimer      = null
 
 const selectedDoc = ref(null)
 const isModalOpen = ref(false)
-const selectedFlipbookDoc = ref(null)
-const isFlipbookOpen = ref(false)
 const isFilterDrawerOpen = ref(false)
 
 const selectCategoryAndClose = (catId) => {
@@ -47,20 +44,14 @@ const closePreview = () => {
   setTimeout(() => { selectedDoc.value = null }, 300) // Clear after animation finishes
 }
 
-const openFlipbook = (doc) => {
-  selectedFlipbookDoc.value = doc
-  isFlipbookOpen.value = true
-  router.replace({ query: { ...route.query, doc: doc.id, view: 'flipbook' } })
-}
-
-const closeFlipbook = () => {
-  isFlipbookOpen.value = false
-  const nextQuery = { ...route.query }
-  delete nextQuery.doc
-  delete nextQuery.view
-  router.replace({ query: nextQuery })
-  setTimeout(() => { selectedFlipbookDoc.value = null }, 300)
-}
+// Re-run search and parse DearFlip buttons when documents are updated in the DOM
+watch(() => store.documents, () => {
+  nextTick(() => {
+    if (window.DFLIP && typeof window.DFLIP.parseButtons === 'function') {
+      window.DFLIP.parseButtons()
+    }
+  })
+}, { deep: true, immediate: true })
 
 onMounted(() => {
   store.fetchCategories()
@@ -85,8 +76,11 @@ const loadDocuments = async () => {
     const matchedDoc = store.documents.find(d => d.id === docId)
     if (matchedDoc) {
       if (route.query.view === 'flipbook') {
-        selectedFlipbookDoc.value = matchedDoc
-        isFlipbookOpen.value = true
+        nextTick(() => {
+          if (window.DFLIP && typeof window.DFLIP.previewPDF === 'function') {
+            window.DFLIP.previewPDF(matchedDoc.file)
+          }
+        })
       } else {
         selectedDoc.value = matchedDoc
         isModalOpen.value = true
@@ -231,7 +225,6 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
             :doc="doc"
             :list-mode="viewMode === 'list'"
             @preview="openPreview"
-            @flipbook="openFlipbook"
           />
         </div>
       </main>
@@ -243,14 +236,6 @@ const hasFilters = computed(() => searchQuery.value || selectedCategory.value !=
       :doc="selectedDoc" 
       :is-open="isModalOpen" 
       @close="closePreview" 
-    />
-
-    <!-- Flipbook Preview Modal -->
-    <FlipbookModal
-      v-if="selectedFlipbookDoc"
-      :doc="selectedFlipbookDoc"
-      :is-open="isFlipbookOpen"
-      @close="closeFlipbook"
     />
 
     <!-- Floating Filter Button (Mobile only) -->

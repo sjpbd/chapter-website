@@ -38,14 +38,15 @@ const extColor = (e) => ({
         <span>{{ formatDate(doc.uploaded_at) }}</span>
       </div>
       <div class="actions">
-        <button 
+        <div 
           v-if="ext(doc.file) === 'PDF'" 
-          @click.prevent="emit('flipbook', doc)" 
-          class="action-btn fb" 
+          :source="doc.file" 
+          class="action-btn fb _df_button" 
           title="Flipbook View"
+          style="cursor: pointer;"
         >
           <BookOpen :size="17" />
-        </button>
+        </div>
         <button @click.prevent="emit('preview', doc)" class="action-btn" title="Preview">
           <Eye :size="17" />
         </button>
