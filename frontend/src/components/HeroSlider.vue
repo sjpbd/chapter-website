@@ -40,10 +40,14 @@ const defaultSlides = [
 
 const activeSlides = computed(() => {
   const rawSlides = props.slides.length ? props.slides : defaultSlides
-  return rawSlides.map(slide => ({
-    ...slide,
-    media_type: slide.media_type || 'image'
-  }))
+  return rawSlides.map((slide, idx) => {
+    const fallbackImage = defaultSlides[idx % defaultSlides.length].image
+    return {
+      ...slide,
+      image: slide.image || fallbackImage,
+      media_type: slide.media_type || 'image'
+    }
+  })
 })
 
 const current = ref(0)

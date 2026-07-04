@@ -97,6 +97,25 @@ const switchToFlipbook = async () => {
     // 2. Load jQuery (required by DearFlip)
     await loadScript('https://code.jquery.com/jquery-3.7.1.min.js')
     
+    // Set global CDN paths for DearFlip dependencies before loading the main script
+    window.DFLIP = window.DFLIP || {}
+    window.DFLIP.defaults = window.DFLIP.defaults || {}
+    window.DFLIP.defaults.pdfjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js'
+    window.DFLIP.defaults.pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.worker.min.js'
+    window.DFLIP.defaults.threejsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js'
+    window.DFLIP.defaults.mockupjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
+    window.DFLIP.defaults.mockupSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
+    window.DFLIP.defaults.soundFile = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
+
+    window.DEARFLIP = window.DEARFLIP || {}
+    window.DEARFLIP.defaults = window.DEARFLIP.defaults || {}
+    window.DEARFLIP.defaults.pdfjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js'
+    window.DEARFLIP.defaults.pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.worker.min.js'
+    window.DEARFLIP.defaults.threejsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js'
+    window.DEARFLIP.defaults.mockupjsSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
+    window.DEARFLIP.defaults.mockupSrc = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js'
+    window.DEARFLIP.defaults.soundFile = 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
+
     // 3. Load DearFlip JS
     await loadScript('https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/dflip.min.js')
     
@@ -108,7 +127,13 @@ const switchToFlipbook = async () => {
       window.jQuery(flipbookContainerRef.value).flipBook(absoluteUrl.value, {
         webgl: true,
         height: '100%',
-        duration: 800
+        duration: 800,
+        pdfjsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.min.js',
+        pdfjsWorkerSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/pdf.worker.min.js',
+        threejsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/three.min.js',
+        mockupjsSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js',
+        mockupSrc: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/js/libs/mockup.min.js',
+        soundFile: 'https://cdn.jsdelivr.net/npm/@dearhive/dearflip-jquery-flipbook/dflip/sound/turn2.mp3'
       })
     }
   } catch (error) {
