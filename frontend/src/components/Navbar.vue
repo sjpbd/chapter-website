@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays, Sparkles } from 'lucide-vue-next'
 import { useConfigStore } from '../store/configStore'
@@ -18,6 +18,15 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 const triggerTour = () => {
   window.dispatchEvent(new CustomEvent('start-sjp-tour'))
 }
+
+// Lock body scrolling when mobile drawer is open for a premium app feel
+watch(isMenuOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
 </script>
 
 <template>
@@ -54,9 +63,11 @@ const triggerTour = () => {
         </RouterLink>
       </div>
 
-      <!-- Global Search (desktop) -->
-      <div v-if="route.path !== '/repository'" class="nav-search-area">
-        <GlobalSearch />
+      <!-- Desktop Actions -->
+      <div class="nav-actions-container">
+        <div v-if="route.path !== '/repository'" class="nav-search-area">
+          <GlobalSearch />
+        </div>
         <button class="tour-replay-btn" @click="triggerTour" title="Quick Tour Guide">
           <Sparkles :size="18" />
         </button>
@@ -313,12 +324,13 @@ const triggerTour = () => {
   transform: translateY(-1px);
 }
 
-/* Search area - pushes burger to right on mobile when hidden */
-.nav-search-area {
+/* Actions Container */
+.nav-actions-container {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 /* Burger Button Upgrade */
@@ -526,7 +538,7 @@ const triggerTour = () => {
 
 @media (max-width: 1024px) {
   .nav-links { display: none; }
-  .nav-search-area { display: none; }
+  .nav-actions-container { display: none; }
   .nav-mobile-toggle { display: block; }
   .nav-inner { padding: 0 1.2rem; }
   .logo { margin-right: 0; }
