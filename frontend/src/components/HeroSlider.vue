@@ -99,13 +99,7 @@ onUnmounted(() => clearInterval(timer))
           ></div>
         </div>
 
-        <!-- Dynamic Overlay -->
-        <div 
-          class="slide-overlay" 
-          :style="{ 
-            background: `linear-gradient(135deg, ${(slide.accent || '#0078d4')}44 0%, rgba(10, 18, 30, 0.85) 100%)` 
-          }"
-        ></div>
+
 
         <!-- Slide content with staggered animations -->
         <div class="slide-content-wrapper" v-if="slide.title || slide.subtitle || slide.link">
@@ -221,13 +215,7 @@ onUnmounted(() => clearInterval(timer))
   pointer-events: none;
 }
 
-/* Gradient Overlay */
-.slide-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  transition: background 1.2s ease;
-}
+
 
 /* Content Container */
 .slide-content-wrapper {
