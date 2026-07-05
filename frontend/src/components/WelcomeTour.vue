@@ -38,6 +38,16 @@ const steps = computed(() => [
       desktop: "#tour-nav-prayer",
       mobile: ".burger-btn"
     }
+  },
+  {
+    title: "📅 Daily Schedule",
+    description: isMobile.value
+      ? "Tap the menu button in the header (or the floating compass at the bottom right) and select 'Schedule' to view the daily program timetable of the Chapter."
+      : "Click here to view the full timetable of sessions, liturgies, meals, and social activities for the Provincial Chapter.",
+    target: {
+      desktop: "#tour-nav-schedule",
+      mobile: ".burger-btn"
+    }
   }
 ])
 

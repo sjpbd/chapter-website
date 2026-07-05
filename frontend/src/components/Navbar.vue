@@ -49,7 +49,7 @@ const triggerTour = () => {
         <RouterLink id="tour-nav-prayer" to="/prayer" class="nav-item nav-prayer">
           <HandHeart :size="17" /><span>Prayer</span>
         </RouterLink>
-        <RouterLink to="/schedule" class="nav-item nav-schedule">
+        <RouterLink id="tour-nav-schedule" to="/schedule" class="nav-item nav-schedule">
           <CalendarDays :size="17" /><span>Schedule</span>
         </RouterLink>
       </div>
