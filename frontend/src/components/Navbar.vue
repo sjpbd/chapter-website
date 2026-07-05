@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays, Sparkles } from 'lucide-vue-next'
+import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays, Sparkles, Vote } from 'lucide-vue-next'
 import { useConfigStore } from '../store/configStore'
 import GlobalSearch from './GlobalSearch.vue'
 
@@ -68,6 +68,20 @@ watch(isMenuOpen, (isOpen) => {
         <div v-if="route.path !== '/repository'" class="nav-search-area">
           <GlobalSearch />
         </div>
+        <a 
+          href="https://vote.sjp.org.bd" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="nav-vote-btn"
+          title="SJP Voting Portal"
+        >
+          <Vote :size="16" />
+          <span>Vote Now</span>
+          <span class="live-indicator">
+            <span class="live-dot"></span>
+            <span class="live-ring"></span>
+          </span>
+        </a>
         <button class="tour-replay-btn" @click="triggerTour" title="Quick Tour Guide">
           <Sparkles :size="18" />
         </button>
@@ -114,6 +128,20 @@ watch(isMenuOpen, (isOpen) => {
             <div class="mob-icon"><CalendarDays :size="20" /></div>
             <span>Schedule</span>
           </RouterLink>
+          <a 
+            href="https://vote.sjp.org.bd" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="mob-item mob-vote-btn" 
+            @click="isMenuOpen = false"
+          >
+            <div class="mob-icon"><Vote :size="20" /></div>
+            <span>Vote Now</span>
+            <span class="live-indicator">
+              <span class="live-dot"></span>
+              <span class="live-ring"></span>
+            </span>
+          </a>
           <button class="mob-item mob-tour-btn" @click="isMenuOpen = false; triggerTour()">
             <div class="mob-icon"><Sparkles :size="20" /></div>
             <span>Quick Guide</span>
@@ -593,5 +621,119 @@ watch(isMenuOpen, (isOpen) => {
 .mob-tour-btn:hover .mob-icon {
   background: rgba(0, 106, 220, 0.08);
   transform: scale(1.05);
+}
+
+/* Vote Button Desktop */
+.nav-vote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  color: white !important;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  animation: buttonPulse 2.5s infinite;
+}
+
+.nav-vote-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45);
+  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+}
+
+.nav-vote-btn svg {
+  color: white;
+}
+
+/* Mobile Vote Button Drawer */
+.mob-vote-btn {
+  grid-column: span 2;
+  flex-direction: row;
+  padding: 1.1rem 1.5rem;
+  justify-content: flex-start;
+  gap: 16px;
+  width: 100%;
+  border: 1.5px solid rgba(239, 68, 68, 0.2) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+  color: #ef4444 !important;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.mob-vote-btn .mob-icon {
+  color: white;
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+
+.mob-vote-btn:hover {
+  background: white !important;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Live Indicator */
+.live-indicator {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  margin-left: auto; /* Push to the right edge */
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.live-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  animation: ripple 1.6s infinite ease-out;
+  z-index: 1;
+}
+
+/* Keyframes */
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
 }
 </style>
