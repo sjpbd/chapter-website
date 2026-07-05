@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays } from 'lucide-vue-next'
+import { Home, FolderOpen, Info, Menu, X, FileText, HandHeart, CalendarDays, Sparkles } from 'lucide-vue-next'
 import { useConfigStore } from '../store/configStore'
 import GlobalSearch from './GlobalSearch.vue'
 
@@ -14,6 +14,10 @@ const route = useRoute()
 const handleScroll = () => { isScrolled.value = window.scrollY > 30 }
 onMounted(() => window.addEventListener('scroll', handleScroll))
 onUnmounted(() => window.removeEventListener('scroll', handleScroll))
+
+const triggerTour = () => {
+  window.dispatchEvent(new CustomEvent('start-sjp-tour'))
+}
 </script>
 
 <template>
@@ -36,13 +40,13 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         <RouterLink to="/" class="nav-item">
           <Home :size="17" /><span>Home</span>
         </RouterLink>
-        <RouterLink to="/repository" class="nav-item">
+        <RouterLink id="tour-nav-repository" to="/repository" class="nav-item">
           <FolderOpen :size="17" /><span>Repository</span>
         </RouterLink>
         <RouterLink to="/about" class="nav-item">
           <Info :size="17" /><span>About</span>
         </RouterLink>
-        <RouterLink to="/prayer" class="nav-item nav-prayer">
+        <RouterLink id="tour-nav-prayer" to="/prayer" class="nav-item nav-prayer">
           <HandHeart :size="17" /><span>Prayer</span>
         </RouterLink>
         <RouterLink to="/schedule" class="nav-item nav-schedule">
@@ -53,6 +57,9 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <!-- Global Search (desktop) -->
       <div v-if="route.path !== '/repository'" class="nav-search-area">
         <GlobalSearch />
+        <button class="tour-replay-btn" @click="triggerTour" title="Quick Tour Guide">
+          <Sparkles :size="18" />
+        </button>
       </div>
 
       <!-- Mobile burger -->
@@ -96,6 +103,10 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
             <div class="mob-icon"><CalendarDays :size="20" /></div>
             <span>Schedule</span>
           </RouterLink>
+          <button class="mob-item mob-tour-btn" @click="isMenuOpen = false; triggerTour()">
+            <div class="mob-icon"><Sparkles :size="20" /></div>
+            <span>Quick Guide</span>
+          </button>
           <div v-if="route.path !== '/repository'" class="mob-search">
             <GlobalSearch />
           </div>
@@ -521,5 +532,54 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   .logo { margin-right: 0; }
 }
 
+/* Tour button styling */
+.tour-replay-btn {
+  background: rgba(0, 106, 220, 0.05);
+  color: var(--primary-color);
+  border: 1px solid rgba(0, 106, 220, 0.15);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tour-replay-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 106, 220, 0.15);
+}
 
+.mob-tour-btn {
+  grid-column: span 2;
+  flex-direction: row;
+  padding: 1.1rem 1.5rem;
+  justify-content: flex-start;
+  gap: 16px;
+  width: 100%;
+  border: 1.5px solid rgba(0, 106, 220, 0.15);
+  background: rgba(0, 106, 220, 0.03);
+  color: var(--primary-color);
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+}
+.mob-tour-btn:hover {
+  background: white;
+  box-shadow: 0 10px 25px rgba(0, 106, 220, 0.06);
+  transform: translateY(-2px);
+  border-color: rgba(0, 106, 220, 0.2);
+}
+.mob-tour-btn:hover .mob-icon {
+  background: rgba(0, 106, 220, 0.08);
+  transform: scale(1.05);
+}
 </style>

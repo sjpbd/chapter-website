@@ -4,6 +4,7 @@ import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { useConfigStore } from './store/configStore'
 import Navbar from './components/Navbar.vue'
 import SiteFooter from './components/SiteFooter.vue'
+import WelcomeTour from './components/WelcomeTour.vue'
 import { Compass, Home, FolderOpen, HandHeart, CalendarDays, X } from 'lucide-vue-next'
 
 const configStore = useConfigStore()
@@ -18,6 +19,7 @@ onMounted(() => {
 <template>
   <div id="app-shell">
     <Navbar />
+    <WelcomeTour />
     <main class="main-content">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
