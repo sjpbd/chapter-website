@@ -68,6 +68,13 @@ const resetTimer = () => { clearInterval(timer); timer = setInterval(next, 6000)
 watch(current, resetTimer)
 onMounted(resetTimer)
 onUnmounted(() => clearInterval(timer))
+
+const shouldLoadVideo = (idx) => {
+  if (!activeSlides.value.length) return false
+  const isCurrent = idx === current.value
+  const isNext = idx === (current.value + 1) % activeSlides.value.length
+  return isCurrent || isNext
+}
 </script>
 
 <template>
@@ -82,7 +89,7 @@ onUnmounted(() => clearInterval(timer))
         <div class="media-container">
           <!-- Video slide -->
           <video
-            v-if="slide.media_type === 'video' && slide.video"
+            v-if="slide.media_type === 'video' && slide.video && shouldLoadVideo(i)"
             :src="slide.video"
             :poster="slide.image"
             autoplay
@@ -92,11 +99,14 @@ onUnmounted(() => clearInterval(timer))
             class="slide-media slide-video"
           ></video>
           <!-- Image slide -->
-          <div
+          <img
             v-else
+            :src="slide.image"
+            :loading="i === 0 ? 'eager' : 'lazy'"
+            :fetchpriority="i === 0 ? 'high' : 'low'"
             class="slide-media slide-image"
-            :style="{ backgroundImage: `url(${slide.image})` }"
-          ></div>
+            alt="SJP Chapter Hub Slider Background"
+          />
         </div>
 
 
