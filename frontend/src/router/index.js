@@ -4,11 +4,11 @@ import Repository from '../views/Repository.vue'
 import About from '../views/About.vue'
 
 const routes = [
-  { path: '/',           name: 'Home',        component: Home },
-  { path: '/repository', name: 'Repository',  component: Repository },
-  { path: '/about',      name: 'About',       component: About },
-  { path: '/prayer',     name: 'Prayer',      component: () => import('../views/PrayerCard.vue') },
-  { path: '/schedule',   name: 'Schedule',    component: () => import('../views/Schedule.vue') },
+  { path: '/',           name: 'Home',        component: Home, meta: { title: 'Home' } },
+  { path: '/repository', name: 'Repository',  component: Repository, meta: { title: 'Document Repository' } },
+  { path: '/about',      name: 'About',       component: About, meta: { title: 'About Us' } },
+  { path: '/prayer',     name: 'Prayer',      component: () => import('../views/PrayerCard.vue'), meta: { title: 'Chapter Prayer' } },
+  { path: '/schedule',   name: 'Schedule',    component: () => import('../views/Schedule.vue'), meta: { title: 'Daily Programme Schedule' } },
 ]
 
 const router = createRouter({
@@ -17,6 +17,11 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   }
+})
+
+router.afterEach((to) => {
+  const baseTitle = 'SJP Chapter Hub'
+  document.title = to.meta.title ? `${to.meta.title} - ${baseTitle}` : baseTitle
 })
 
 export default router
