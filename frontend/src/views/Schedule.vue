@@ -76,8 +76,11 @@ function getMeta(cat) {
 
     <!-- ─── EMPTY ────────────────────────────────────────── -->
     <div v-else-if="!days.length" class="state-center">
-      <span class="state-icon">📅</span>
-      <p>No schedule has been published yet.<br/>Check back soon.</p>
+      <div class="empty-card glass">
+        <div class="empty-icon-glow">📅</div>
+        <h3 class="empty-title">No Schedule Published</h3>
+        <p class="empty-desc">The daily programme schedule for Chapter 2027 hasn't been posted yet.<br/>Check back soon for sessions, liturgies, and events.</p>
+      </div>
     </div>
 
     <!-- ─── SCHEDULE ─────────────────────────────────────── -->
@@ -153,6 +156,7 @@ function getMeta(cat) {
               :style="{
                 background: getMeta(event.category).bg,
                 borderColor: getMeta(event.category).border,
+                borderLeft: `5px solid ${getMeta(event.category).color}`
               }"
             >
               <!-- Highlighted ribbon -->
@@ -535,16 +539,22 @@ function getMeta(cat) {
   border-radius: 16px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease;
 }
 
 .event-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 30px rgba(0, 106, 220, 0.08),
+              0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .highlighted .event-card {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.05) 0%, rgba(217, 119, 6, 0.12) 100%) !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
+  border-left: 6px solid #d97706 !important;
+  box-shadow: 0 10px 25px rgba(217, 119, 6, 0.08);
 }
 
 .highlight-ribbon {
@@ -607,19 +617,84 @@ function getMeta(cat) {
   font-weight: 500;
 }
 
+/* Empty state styling */
+.empty-card {
+  max-width: 480px;
+  padding: 3.5rem 2rem;
+  border-radius: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 106, 220, 0.03);
+}
+
+.empty-icon-glow {
+  font-size: 3rem;
+  background: rgba(0, 106, 220, 0.06);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-slow 3s infinite ease-in-out;
+  margin-bottom: 0.5rem;
+}
+
+.empty-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.empty-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 20px rgba(0, 106, 220, 0.1); }
+}
+
 /* ─── RESPONSIVE ─────────────────────────────────────────── */
 @media (max-width: 768px) {
   .sched-layout {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem 3rem;
   }
   .day-tabs {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    position: static;
+    display: flex;
+    flex-direction: row;
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding: 0.5rem 1rem;
+    margin: 0 -1rem 1rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    position: sticky;
+    top: 84px;
+    z-index: 10;
+    background: rgba(248, 250, 252, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
   }
-  .day-tab { transform: none !important; }
+  .day-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .day-tab {
+    flex: 0 0 160px;
+    transform: none !important;
+    padding: 0.75rem 1rem;
+  }
   .event-row { grid-template-columns: 84px 20px 1fr; }
-  .time-start { font-size: 0.8rem; }
+  .time-start { font-size: 0.85rem; }
 }
 
 @media (max-width: 480px) {

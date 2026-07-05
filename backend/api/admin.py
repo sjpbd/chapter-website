@@ -72,10 +72,16 @@ class ChapterPrayerAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
 
-class ScheduleEventInline(admin.TabularInline):
+class ScheduleEventInline(admin.StackedInline):
     model = ScheduleEvent
-    extra = 3
-    fields = ['order', 'time_start', 'time_end', 'title', 'category', 'location', 'speaker', 'description', 'is_highlighted', 'is_active']
+    extra = 1
+    fields = [
+        ('order', 'is_active', 'is_highlighted'),
+        ('time_start', 'time_end'),
+        ('title', 'category'),
+        ('location', 'speaker'),
+        'description',
+    ]
     ordering = ['order', 'time_start']
 
 
