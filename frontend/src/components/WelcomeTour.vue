@@ -50,6 +50,8 @@ const updateSpotlight = () => {
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
+      width: 'calc(100vw - 32px)',
+      maxWidth: '340px',
       zIndex: 2001
     }
     return
@@ -70,9 +72,9 @@ const updateSpotlight = () => {
       h: rect.height + padding * 2
     }
 
-    const cardWidth = 340
+    const cardWidth = Math.min(340, window.innerWidth - 32)
     let leftPos = rect.left + rect.width / 2 - cardWidth / 2
-    const screenPadding = 20
+    const screenPadding = 16
 
     // Prevent popover from clipping past left/right viewport boundaries
     if (leftPos < screenPadding) {

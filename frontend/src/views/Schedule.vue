@@ -697,8 +697,48 @@ function getMeta(cat) {
   .time-start { font-size: 0.85rem; }
 }
 
+@media (max-width: 550px) {
+  .event-row {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 0.5rem;
+  }
+  .event-dot-wrap {
+    position: absolute;
+    left: 4px;
+    top: 0;
+    height: 100%;
+    padding-top: 0.4rem;
+  }
+  .event-time {
+    align-items: flex-start;
+    padding-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  .time-start {
+    font-size: 0.9rem;
+  }
+  .time-end {
+    font-size: 0.75rem;
+  }
+  .event-card {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 480px) {
-  .day-header { flex-direction: column; }
-  .event-time { align-items: flex-start; }
+  .day-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.2rem;
+  }
+  .day-event-pill {
+    align-self: flex-start;
+  }
 }
 </style>
